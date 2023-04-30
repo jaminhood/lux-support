@@ -1,0 +1,318 @@
+a {
+  color: inherit;
+  text-decoration: none !important;
+}
+
+.btn:disabled,
+input:disabled {
+  cursor: not-allowed !important;
+}
+
+.menu-download-container {
+  position: relative;
+}
+
+.menu-download-container #home-download-modal {
+  position: absolute;
+  top: 120%;
+  right: 1rem;
+  background: #025e30;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.5s ease-in-out;
+}
+
+.menu-download-container #home-download-modal.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.menu-download-container #home-download-modal .download-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  #home-download-button span {
+    display: none;
+  }
+}
+
+.menu-download-container #home-download-modal .download-list .download-item {
+  font-family: "poppins", sans-serif;
+}
+
+.menu-download-container #home-download-modal .download-list .download-item a {
+  display: inline-block;
+  padding: 1rem;
+  color: #fff;
+}
+
+.menu-download-container
+  #home-download-modal
+  .download-list
+  .download-item
+  a:hover {
+  background: #022815;
+}
+
+.menu-download-container
+  #home-download-modal
+  .download-list
+  .download-item
+  a
+  span {
+  font-family: "poppins", sans-serif;
+  margin-left: 1rem;
+}
+
+.app h1,
+.app h2,
+.app h3,
+.app h4,
+.app h5,
+.app h6,
+.app p,
+.app a,
+.app span,
+.app li,
+.app .btn,
+.app input,
+.app label,
+.app [class^="col-"],
+.app div,
+.app table,
+.app tr,
+.app td,
+.app th {
+  font-family: "Poppins", sans-serif !important;
+}
+.app td,
+.app th {
+  font-weight: 600;
+  letter-spacing: 0.05rem;
+  text-transform: capitalize;
+}
+.app .btn {
+  letter-spacing: 0.1rem;
+  text-transform: uppercase;
+}
+.app * {
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+.app .l-bg-green,
+.app .input-group-text,
+.app .btn-primary {
+  color: #ffffff;
+  background: #025e30 !important;
+}
+.app .btn {
+  transition: 0.3s ease-in-out;
+  letter-spacing: 0.1rem;
+}
+.app .btn-primary {
+  border-color: #025e30;
+  font-weight: 700 !important;
+}
+.app .btn-primary:hover,
+.app .btn-primary:focus {
+  color: #e6e6e6 !important;
+  border-color: black !important;
+}
+.app .text-primary {
+  color: #025e30 !important;
+}
+.app .form-control:focus {
+  border-color: #025e30;
+}
+.app .form-check label:after {
+  background: linear-gradient(135deg, #025e30, #43e794) !important;
+}
+.app .auth-img {
+  margin-block: 1rem;
+}
+.app a {
+  color: inherit;
+}
+.app a:hover,
+.app a:focus {
+  color: #025e30 !important;
+}
+.app .loader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  background: #fff;
+  z-index: 99999;
+}
+.app .loader img {
+  max-width: 100px;
+  animation: pop 1s ease-in-out infinite;
+}
+@keyframes pop {
+  from {
+    transform: scale(0.9);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  to {
+    transform: scale(0.9);
+  }
+}
+.app .app-navbar .sidebar-nav ul.metismenu li.active ul:before,
+.app .app-navbar .sidebar-nav ul.metismenu li.active ul li.active a:before {
+  background: rgba(2, 94, 48, 0.5) !important;
+}
+.app #datatable-user_wrapper,
+.app #datatable-giftcard_wrapper,
+.app #datatable-crypto_wrapper {
+  padding-block: 1rem !important;
+  max-width: 100%;
+}
+.app textarea {
+  resize: none;
+}
+.app .announcement-card:not(:last-of-type) {
+  border-bottom: 0.1rem solid rgba(0, 0, 0, 0.1);
+}
+.app .mobile-toggle,
+.app .mobile-toggle:focus,
+.app .mobile-toggle:active {
+  color: #fff !important;
+}
+.app .app-chat-msg-chat .chat-left .chat-msg .chat-msg-content {
+  background: linear-gradient(135deg, #025e30, #43e794);
+}
+.app
+  .app-chat-msg-chat
+  .chat-left
+  .chat-msg
+  .chat-msg-content:first-child::before {
+  border-left-color: #025e30 !important;
+}
+.app .app-chat-type .input-group-text {
+  cursor: pointer;
+}
+.app .input-group-text {
+  border-color: #025e30 !important;
+}
+.app .open-chat {
+  cursor: pointer;
+  transition: 0.4s ease-in;
+}
+.app .open-chat:hover {
+  color: #025e30;
+}
+.app .chat-box {
+  min-height: 70vh;
+  max-height: 70vh;
+}
+.app .chat-box a {
+  color: #fff !important;
+  font-style: italic;
+}
+
+.select2-container--default
+  .select2-results__option--highlighted[aria-selected] {
+  background-color: #025e30 !important;
+}
+
+.custom-file-input:focus ~ .custom-file-label {
+  border: none !important;
+}
+
+input[type="file"]:focus {
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+#ast-scroll-top {
+  background: #025e30 !important;
+}
+
+input[type="radio"]:checked,
+input[type="reset"],
+input[type="checkbox"]:checked,
+input[type="checkbox"]:hover:checked,
+input[type="checkbox"]:focus:checked,
+input[type="range"]::-webkit-slider-thumb {
+  border-color: #025e30 !important;
+  background-color: #025e30 !important;
+}
+
+.form-check label:after {
+  background: #025e30 !important;
+}
+
+.guestRate h1,
+.guestRate h2,
+.guestRate h3,
+.guestRate h4,
+.guestRate h5,
+.guestRate h6,
+.guestRate p,
+.guestRate a,
+.guestRate span,
+.guestRate li,
+.guestRate .btn,
+.guestRate input,
+.guestRate label,
+.guestRate [class^="col-"],
+.guestRate div,
+.guestRate .page-link,
+.guestRate table,
+.guestRate tr,
+.guestRate td,
+.guestRate th {
+  font-family: "Poppins", sans-serif !important;
+}
+
+td,
+th {
+  padding: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.05rem;
+  text-transform: capitalize;
+}
+
+table.dataTable.no-footer,
+table.dataTable thead td,
+table.dataTable thead th {
+  border: 1px solid #dee2e6 !important;
+}
+
+table.dataTable.compact thead td,
+table.dataTable.compact thead th,
+table.dataTable.compact tbody td,
+table.dataTable.compact tbody th {
+  padding: 8px 10px !important;
+}
+
+.page-item {
+  padding: 0 !important;
+  background: none !important;
+  border: none !important;
+}
+.page-item.active,
+.page-item:focus,
+.page-item:active,
+.page-item:hover {
+  background: transparent !important;
+}
+.page-item.active .page-link,
+.page-item:focus .page-link,
+.page-item:active .page-link,
+.page-item:hover .page-link {
+  background: #025e30 !important;
+  border-color: #025e30 !important;
+  color: #ffffff !important;
+}
+
+/*# sourceMappingURL=user-style.css.map */
