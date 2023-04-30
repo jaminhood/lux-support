@@ -2,9 +2,9 @@
 
 /**
  * Plugin Name: Lux Support
- * Plugin URI: https://github.com/jaminhood/exchange-manager
+ * Plugin URI: https://github.com/jaminhood/lux-support
  * Version: 1.0.0
- * Description: This plugin will provide backend api support for mobile applications and also create a user dashboard as well on the website
+ * Description: This plugin provides backend api support for Lux Trade mobile applications and also create a dashboard as well for trading on the website
  * Author: JaminHood
  * Author URI: https://github.com/jaminhood
  * License: GPU
