@@ -450,7 +450,7 @@ if (!class_exists('LuxDBH')) {
 
       foreach ($this->lux_get_top_giftcards() as $curr) {
         $asset = array(
-          'asset_type' => 0,
+          'asset_type' => 2,
           'asset_id' => $curr->id,
           'name' => $curr->name,
           'short_name' => $curr->short_name,
