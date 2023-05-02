@@ -194,12 +194,12 @@ if (!class_exists('LuxAdminWallet')) {
                 <table class="table table-borderless mb-0">
                   <thead class="bg-light">
                     <tr>
-                      <th>Change Status</th>
-                      <th>Customer</th>
-                      <th>Time</th>
-                      <th>Amount</th>
-                      <th>Details</th>
-                      <th>Instructions</th>
+                      <th width='10%'>Customer</th>
+                      <th width='15%'>Time</th>
+                      <th width='10%'>Amount</th>
+                      <th width='20%'>Details</th>
+                      <th width='25%'>Instructions</th>
+                      <th width='20%'>Change Status</th>
                     </tr>
                   </thead>
                   <tbody class="text-muted mb-0">
@@ -208,7 +208,7 @@ if (!class_exists('LuxAdminWallet')) {
                       foreach ($all_withdrawals as $transaction) {
                         $customer = hid_ex_m_get_customer_data_name($transaction->customer_id);
                         $time = $transaction->time_stamp;
-                        $amount = floatval($transaction->amount) - 5;
+                        $amount = floatval($transaction->amount);
                         $details = $transaction->details;
                         $cap = 55;
 
@@ -222,7 +222,13 @@ if (!class_exists('LuxAdminWallet')) {
                         $pending_url = admin_url("admin.php?page=lux-wallet&tab=withdrawals&action=1&id=$transaction->id");
                         $completed_url = admin_url("admin.php?page=lux-wallet&tab=withdrawals&action=2&id=$transaction->id");
 
-                        echo "<tr><td>";
+                        echo "<tr>";
+                        echo "<td style='white-space: normal;'>$customer</td>";
+                        echo "<td style='white-space: normal;'>$time</td>";
+                        echo "<td style='white-space: normal;'># $amount</td>";
+                        echo "<td style='white-space: normal;'>$details</td>";
+                        echo "<td style='white-space: normal;'>$instruction</td>";
+                        echo "<td style='white-space: nowrap;'>";
                         if ($status != 0) {
                           echo "<a class='btn l-bg-green btn-sm mx-1' href='$decline_url'>Decline</a>";
                         }
@@ -232,11 +238,7 @@ if (!class_exists('LuxAdminWallet')) {
                         if ($status != 2) {
                           echo "<a class='btn l-bg-green btn-sm mx-1' href='$completed_url'>Approved</a>";
                         }
-                        echo "</td><td>$customer</td>";
-                        echo "<td>$time</td>";
-                        echo "<td># $amount</td>";
-                        echo "<td>$details</td>";
-                        echo "<td>$instruction</td></tr>";
+                        echo "</tr>";
                       }
                     } else { ?>
                       <p>No Withdrawals Transactions to display</p>
@@ -429,6 +431,44 @@ if (!class_exists('LuxAdminWallet')) {
       <div class="row">
         <div class="col-lg-6 col-xxl-4 m-b-30">
           <div class="row">
+            <div class="col-12 m-b-30">
+              <div class="card text-dark h-100 mb-0">
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col-12">
+                      <?php
+                      $all_banks = hid_ex_m_get_all_banks();
+                      if (empty($all_banks)) { ?>
+                        <h3 class="text-center">There are no local bank accounts to choose from.<br>Create Local Bank Accounts <a href="<?php echo admin_url('admin.php?page=e-currency-management&tab=local-banks'); ?>">Here</a></h3>
+                      <?php } else { ?>
+                        <div class="select-bank text-center">
+                          <h3 class="text-center">Select the Local Bank account to be used for funding wallets</h3>
+                          <form action="" method="POST">
+                            <select name="local-bank" id="local-bank">
+                              <?php
+                              foreach ($all_banks as $bank) {
+                                $bank_id = $bank->id;
+                                $bank_display_name = $bank->display_name;
+                                $selected = "";
+                                if (get_option('wallet_local_bank')) {
+                                  $prev = get_option('wallet_local_bank');
+                                  if ($prev == $bank_id) {
+                                    $selected = "selected";
+                                  }
+                                }
+                                echo "<option value=$bank_id $selected>$bank_display_name</option>";
+                              }
+                              ?>
+                            </select>
+                            <input class="button l-bg-green" style="border: none; font-weight: 700;" type="submit" value="Submit" name="submit-bank" id="submit-bank">
+                          </form>
+                        </div>
+                      <?php } ?>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
             <div class="col-12">
               <div class="card text-dark m-b-30">
                 <div class="card-header d-flex justify-content-between">
@@ -472,107 +512,10 @@ if (!class_exists('LuxAdminWallet')) {
                 </div>
               </div>
             </div>
-            <div class="col-12 m-b-30">
-              <div class="card text-dark h-100 mb-0">
-                <div class="card-header d-flex justify-content-between">
-                  <div class="card-heading">
-                    <h4 class="card-title">Assets price Range</h4>
-                  </div>
-                </div>
-                <div class="card-body">
-                  <div class="tab">
-                    <ul class="nav nav-tabs" role="tablist">
-                      <li class="nav-item">
-                        <a href="#ecurrency" class="nav-link show active" id="ecurrency-tab" data-toggle="tab" role="tab" aria-controls="e-currency" aria-selected="true">E-Currency</a>
-                      </li>
-                      <li class="nav-item">
-                        <a href="#crypto" class="nav-link" id="crypto-tab" data-toggle="tab" role="tab" aria-controls="crypto" aria-selected="true">Crypto-Currency</a>
-                      </li>
-                    </ul>
-                    <div class="tab-content">
-                      <div class="tab-pane table-responsive fade active show" id="ecurrency" role="tabpanel" aria-labelledby="ecurrency-tab">
-                        <table class="table table-borderless crypto-table mb-0">
-                          <thead>
-                            <tr>
-                              <th scope="col">Asset</th>
-                              <th scope="col">Wallet Address</th>
-                              <th scope="col">Price Range</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            <tr>
-                              <td>
-                                <img src="<?php echo EMURL . "assets/imgs/logo-edited.png" ?>" alt="Icon" width="50px" class="rounded">
-                              </td>
-                              <td>
-                                <h5>344ff55f5f5rn5nf5f5r5f</h5>
-                              </td>
-                              <td>
-                                <p>#0 - #500</p>
-                              </td>
-                            </tr>
-                            <tr>
-                              <td>
-                                <img src="<?php echo EMURL . "assets/imgs/logo-edited.png" ?>" alt="Icon" width="50px" class="rounded">
-                              </td>
-                              <td>
-                                <h5>344ff55f5f5rn5nf5f5r5f</h5>
-                              </td>
-                              <td>
-                                <p>#0 - #500</p>
-                              </td>
-                            </tr>
-                          </tbody>
-                        </table>
-                      </div>
-                      <div class="tab-pane fade" id="crypto" role="tabpanel" aria-labelledby="crypto-tab"></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
         <div class="col-lg-6 col-xxl-4 m-b-30">
           <div class="row">
-            <div class="col-12 m-b-30">
-              <div class="card text-dark h-100 mb-0">
-                <div class="card-body">
-                  <div class="row">
-                    <div class="col-12">
-                      <?php
-                      $all_banks = hid_ex_m_get_all_banks();
-                      if (empty($all_banks)) { ?>
-                        <h3 class="text-center">There are no local bank accounts to choose from.<br>Create Local Bank Accounts <a href="<?php echo admin_url('admin.php?page=e-currency-management&tab=local-banks'); ?>">Here</a></h3>
-                      <?php } else { ?>
-                        <div class="select-bank text-center">
-                          <h3 class="text-center">Select the Local Bank account to be used for funding wallets</h3>
-                          <form action="" method="POST">
-                            <select name="local-bank" id="local-bank">
-                              <?php
-                              foreach ($all_banks as $bank) {
-                                $bank_id = $bank->id;
-                                $bank_display_name = $bank->display_name;
-                                $selected = "";
-                                if (get_option('wallet_local_bank')) {
-                                  $prev = get_option('wallet_local_bank');
-                                  if ($prev == $bank_id) {
-                                    $selected = "selected";
-                                  }
-                                }
-                                echo "<option value=$bank_id $selected>$bank_display_name</option>";
-                              }
-                              ?>
-                            </select>
-                            <input class="button l-bg-green" style="border: none; font-weight: 700;" type="submit" value="Submit" name="submit-bank" id="submit-bank">
-                          </form>
-                        </div>
-                      <?php } ?>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
             <div class="col-12">
               <div class="card text-dark m-b-30">
                 <div class="card-header d-flex justify-content-between">

@@ -43,6 +43,7 @@ if (!class_exists('Lux')) {
       require_once(EMPATH . "templates/em-giftcards.php");
       require_once(EMPATH . "templates/em-debit-user.php");
       require_once(EMPATH . "templates/em-credit-user.php");
+      require_once(EMPATH . "templates/em-announcement.php");
       require_once(EMPATH . "rest/em-rest.php");
       require_once(EMPATH . "templates/user/em-user-requirements.php");
       $this->lux_init();
@@ -86,6 +87,7 @@ if (!class_exists('Lux')) {
       $lux_dbh->lux_create_barcodes_table();
       $lux_dbh->lux_create_transaction_pin_table();
       $lux_dbh->lux_create_device_token_table();
+      $lux_dbh->lux_create_top_assets_table();
       $lux_dbh->lux_populate_customer_bank_details();
       $lux_dbh->lux_populate_referrals();
     }
@@ -102,7 +104,8 @@ if (!class_exists('Lux')) {
         'em_giftcard_categories',
         'em_giftcard_sub_categories',
         'em_transaction_pin',
-        'em_device_token'
+        'em_device_token',
+        'em_top_assets'
       ];
 
       foreach ($tables as $table) {

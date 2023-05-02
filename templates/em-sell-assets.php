@@ -44,16 +44,26 @@ if (!class_exists('LuxAdminSellAssets')) {
           'order_status'          => $_POST['status']
         );
 
-        hid_ex_m_create_new_sell_order($data);
+        $this->lux_dbh->lux_create_new_sell_order($data);
 
         $msg = '';
 
-        if ($_POST['status'] == 0) {
-          $msg = 'Sorry, your order has been declined';
-        } elseif ($_POST['status'] == 1) {
-          $msg = 'Sell order received, please await confirmation';
-        } elseif ($_POST['status'] == 2) {
-          $msg = 'Sell order completed, please check your wallet';
+        switch ($_POST['status']) {
+          case 0:
+            $msg = 'Sorry, your order has been declined';
+            break;
+          case 1:
+            $msg = 'Sell order received, please await confirmation';
+            break;
+          case 2:
+            $msg = 'Sell order confirmed, please await completion';
+            break;
+          case 3:
+            $msg = 'Sell order completed, please check your wallet';
+            break;
+          default:
+            $msg = 'Who goes there?.';
+            break;
         }
 
         $notify = [
@@ -91,28 +101,38 @@ if (!class_exists('LuxAdminSellAssets')) {
         $current_status = $current_transaction->order_status;
         $new_status = intval($_POST['status']);
 
-        if ($current_status != 2 && $new_status == 2) {
+        if ($current_status != 3 && $new_status == 3) {
           $current_balance = hid_ex_m_get_account_balance($customer_id);
           $new_balance = $current_balance + (float)$_POST['hidden-fee'];
           update_user_meta($customer_id, 'account_balance', $new_balance);
           echo "<span><strong>User have been credited successfully</strong></span>";
-        } else if ($current_status == 2 && $new_status != 2) {
+        } else if ($current_status == 3 && $new_status != 3) {
           $current_balance = hid_ex_m_get_account_balance($customer_id);
           $new_balance = $current_balance - (float)$_POST['hidden-fee'];
           update_user_meta($customer_id, 'account_balance', $new_balance);
           echo "<span><strong>User have been debited</strong></span>";
         }
 
-        hid_ex_m_update_sell_order_data($data, $where);
+        $this->lux_dbh->lux_update_sell_order($data, $where);
 
         $msg = '';
 
-        if ($_POST['status'] == 0) {
-          $msg = 'Sorry, your order has been declined';
-        } elseif ($_POST['status'] == 1) {
-          $msg = 'Sell order received, please await confirmation';
-        } elseif ($_POST['status'] == 2) {
-          $msg = 'Sell order completed, please check your wallet';
+        switch ($_POST['status']) {
+          case 0:
+            $msg = 'Sorry, your order has been declined';
+            break;
+          case 1:
+            $msg = 'Sell order received, please await confirmation';
+            break;
+          case 2:
+            $msg = 'Sell order confirmed, please await completion';
+            break;
+          case 3:
+            $msg = 'Sell order completed, please check your wallet';
+            break;
+          default:
+            $msg = 'Who goes there?.';
+            break;
         }
 
         $notify = [
@@ -154,7 +174,7 @@ if (!class_exists('LuxAdminSellAssets')) {
     public function lux_all_sell_component()
     {
       $add_url = admin_url("admin.php?page=lux-sell&tab=create-new");
-      $all_orders = hid_ex_m_get_all_sell_orders() ?>
+      $all_orders = $this->lux_dbh->lux_get_all_sell_orders() ?>
       <div class="row">
         <div class="col-12">
           <div class="card text-dark">
@@ -173,13 +193,13 @@ if (!class_exists('LuxAdminSellAssets')) {
             <div class="card-body">
               <?php if (!empty($all_orders)) {  ?>
                 <div class="table-responsive py-3">
-                  <table class="table table-striped" id="database-table">
+                  <table class="table table-striped">
                     <thead>
                       <tr>
                         <th>Customer Name</th>
+                        <th>Time</th>
                         <th>Asset Type</th>
                         <th>Asset</th>
-                        <th>Time</th>
                         <th>Fee</th>
                         <th>Quantity</th>
                         <th>Order Status</th>
@@ -193,23 +213,18 @@ if (!class_exists('LuxAdminSellAssets')) {
                         $delete_url = admin_url("admin.php?page=lux-sell&delete=$order->id");
                         $customer_name = hid_ex_m_get_customer_data_name($order->customer_id);
                         $asset_type = hid_ex_m_get_asset_type($order->asset_type);
-                        $order_status = hid_ex_m_get_order_status($order->order_status);
+                        $order_status = LuxUtils::lux_get_order_status($order->order_status);
                         $asset_name = hid_ex_m_get_asset_name($order->asset_type, $order->asset_id);
                         $qty = floatval($order->quantity_sold);
 
-                        echo "<tr><td>$customer_name</td>";
-                        echo "<td>$asset_type</td>";
-
-                        echo "<td>$asset_name</td>";
-
+                        echo "<tr>";
+                        echo "<td>$customer_name</td>";
                         echo "<td>$order->time_stamp</td>";
-
+                        echo "<td>$asset_type</td>";
+                        echo "<td>$asset_name</td>";
                         echo "<td>$order->amount_to_recieve</td>";
-
                         echo "<td>$qty</td>";
-
                         echo "<td>$order_status</td>";
-
                         echo "<td>
                           <a href=$update_url class='btn l-bg-green btn-action mx-1'>Update</a>
                           <a href=$delete_url class='btn l-bg-green btn-action mx-1'>Delete</a>
@@ -245,8 +260,6 @@ if (!class_exists('LuxAdminSellAssets')) {
                         <label for="name">Select Customer</label>
                       </th>
                       <td>
-
-
                         <?php
                         $all_customers = hid_ex_m_get_all_customers();
 
@@ -266,15 +279,9 @@ if (!class_exists('LuxAdminSellAssets')) {
 
                         ?>
                           <p class="description">Who is making the order?</p>
-                        <?php
-
-                        } else {
-                        ?>
+                        <?php } else { ?>
                           <p class="description">No Customers to Select From.<br>Create a new customer <a href="<?php echo admin_url('admin.php?page=customers-management&tab=create-new'); ?>">here</a></p>
-                        <?php
-                        }
-
-                        ?>
+                        <?php } ?>
                       </td>
                     </tr>
                     <tr>
@@ -283,7 +290,6 @@ if (!class_exists('LuxAdminSellAssets')) {
                         <label for="asset-type" class="seeat">Asset Type</label>
                       </th>
                       <td>
-
                         <label><input class="asset-btn-1" name="asset-type" type="radio" value="1"> eCurrency</label>
                         <br>
                         <br>
@@ -367,7 +373,8 @@ if (!class_exists('LuxAdminSellAssets')) {
                         <select name="status" id="status">
                           <option value="0">Declined</option>
                           <option value="1" selected>Pending</option>
-                          <option value="2">Completed</option>
+                          <option value="2">Confirmed</option>
+                          <option value="3">Completed</option>
                         </select>
 
                         <p class="description">Order Status</p>
@@ -391,13 +398,47 @@ if (!class_exists('LuxAdminSellAssets')) {
     public function lux_update_sell_component()
     {
       $order_id = $_GET['id'];
+
+      if (hid_ex_m_get_sell_order_data($order_id)->order_status == 1) {
+        $order_data = hid_ex_m_get_sell_order_data($order_id);
+
+        $data = array(
+          'customer_id'           => $order_data->customer_id,
+          'asset_type'            => $order_data->asset_type,
+          'asset_id'              => $order_data->asset_id,
+          'quantity_sold'         => $order_data->quantity_sold,
+          'amount_to_recieve'     => $order_data->amount_to_recieve,
+          'proof_of_payment'      => $order_data->proof_of_payment,
+          'order_status'          => 2,
+        );
+
+        $where = array('id' => $order_id);
+
+        $this->lux_dbh->lux_update_sell_order($data, $where);
+
+        $msg = 'Sell order confirmed, please await completion';
+
+        $notify = [
+          'customer_id' => $order_data->customer_id,
+          'title' => 'Order Updated',
+          'msg' => $msg
+        ];
+
+        $this->lux_dbh->lux_set_notification($notify);
+        $data = [
+          'title' => 'Order Updated',
+          'body' => $msg
+        ];
+        LuxUtils::lux_push_notification($order_data->customer_id, $data);
+      }
+
       $order_data = hid_ex_m_get_sell_order_data($order_id);
       $rate = $order_data->amount_to_recieve / $order_data->quantity_sold; ?>
       <div class="row">
         <div class="col-12">
           <div class="card text-dark">
             <div class="card-header">
-              <h3 class="text-bold">Update Buy Order</h3>
+              <h3 class="text-bold">Update Sell Order</h3>
             </div>
             <div class="card-body">
               <form action="" method="post">
@@ -546,6 +587,11 @@ if (!class_exists('LuxAdminSellAssets')) {
                                             ?>>Pending</option>
                           <option value="2" <?php
                                             if ($order_data->order_status == 2) {
+                                              echo "selected";
+                                            }
+                                            ?>>Confirmed</option>
+                          <option value="3" <?php
+                                            if ($order_data->order_status == 3) {
                                               echo "selected";
                                             }
                                             ?>>Completed</option>

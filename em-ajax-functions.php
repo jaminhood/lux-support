@@ -143,7 +143,7 @@ function lux_debit_wallet()
         $input_data = array(
           'customer_id' => get_current_user_id(),
           'transaction_type' => 2,
-          'amount' => intval($_REQUEST['amount_']) + 5,
+          'amount' => intval($_REQUEST['amount_']) + 50,
           'mode'  => $_REQUEST['mode_w'],
           'details'   => $_REQUEST['details'],
           'proof_of_payment' => 0,
@@ -189,7 +189,7 @@ function lux_set_notifications_function()
         'title' => $_REQUEST['title'],
         'body' => $_REQUEST['msg']
       ];
-      LuxUtils::lux_push_notification(get_current_user_id(), $data);
+      // LuxUtils::lux_push_notification(get_current_user_id(), $data);
 
       $data = 1;
     } catch (\Throwable $th) {
@@ -368,9 +368,7 @@ function lux_submit_sell_order()
         wp_update_attachment_metadata($data, wp_generate_attachment_metadata($data, $upload['file']));
       }
 
-
       $input_data = array(
-
         'customer_id' => get_current_user_id(),
         'asset_type'    => $_REQUEST['chosen_asset_type'],
         'asset_id'      => $_REQUEST['chosen_asset_id'],
@@ -378,13 +376,9 @@ function lux_submit_sell_order()
         'amount_to_recieve' => $_REQUEST['amount_to_recieve'],
         'proof_of_payment'  => $data,
         'order_status'  => 1
-
       );
 
       $lux_dbh->lux_create_new_sell_order($input_data);
-
-      // write_log($input_data);
-
       $output = 1;
     } catch (\Throwable $th) {
       $output = 0;

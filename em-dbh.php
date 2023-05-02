@@ -137,6 +137,28 @@ if (!class_exists('LuxDBH')) {
       add_option('jal_db_version', $jal_db_version);
     }
 
+    public function lux_create_top_assets_table()
+    {
+      global $wpdb;
+      global $jal_db_version;
+
+      $table_name = $wpdb->prefix . 'em_top_assets';
+
+      $charset_collate = $wpdb->get_charset_collate();
+
+      $sql = "CREATE TABLE $table_name (
+        id INT NOT NULL AUTO_INCREMENT,
+        asset_type INT NOT NULL,
+        asset_id INT NOT NULL,
+        PRIMARY KEY (id)
+      ) $charset_collate;";
+
+      require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+      dbDelta($sql);
+
+      add_option('jal_db_version', $jal_db_version);
+    }
+
     public function lux_populate_referrals()
     {
       $customers = $this->lux_get_customer_details();
@@ -201,6 +223,32 @@ if (!class_exists('LuxDBH')) {
       return $result;
     }
 
+    public function lux_get_top_assets()
+    {
+      global $wpdb;
+
+      $table_name = $wpdb->prefix . 'em_top_assets';
+
+      $result = $wpdb->get_results("SELECT * FROM $table_name");
+
+      return $result;
+    }
+
+    public function lux_get_top_asset($asset_type, $asset_id)
+    {
+      global $wpdb;
+
+      $table_name = $wpdb->prefix . 'em_top_assets';
+
+      $result = $wpdb->get_results("SELECT * FROM $table_name WHERE asset_type=$asset_type AND asset_id=$asset_id");
+
+      if ($result) {
+        return $result[0];
+      }
+
+      return false;
+    }
+
     public function lux_get_device_token($id)
     {
       global $wpdb;
@@ -208,6 +256,17 @@ if (!class_exists('LuxDBH')) {
       $table_name = $wpdb->prefix . 'em_device_token';
 
       $result = $wpdb->get_results("SELECT * FROM $table_name WHERE customer_id=$id");
+
+      return $result;
+    }
+
+    public function lux_get_all_device_token()
+    {
+      global $wpdb;
+
+      $table_name = $wpdb->prefix . 'em_device_token';
+
+      $result = $wpdb->get_results("SELECT * FROM $table_name");
 
       return $result;
     }
@@ -293,17 +352,6 @@ if (!class_exists('LuxDBH')) {
       return $result;
     }
 
-    public function lux_get_top_e_currency()
-    {
-      global $wpdb;
-
-      $table_name = $wpdb->prefix . 'hid_ex_m_e_currency_assets';
-
-      $result = $wpdb->get_results("SELECT * FROM $table_name ORDER BY buying_price DESC LIMIT 3");
-
-      return $result;
-    }
-
     public function lux_get_barcodes()
     {
       global $wpdb;
@@ -337,13 +385,24 @@ if (!class_exists('LuxDBH')) {
       return $result[0];
     }
 
+    public function lux_get_top_e_currency()
+    {
+      global $wpdb;
+
+      $table_name = $wpdb->prefix . 'hid_ex_m_e_currency_assets';
+
+      $result = $wpdb->get_results("SELECT * FROM $table_name");
+
+      return $result;
+    }
+
     public function lux_get_top_crypto_currency()
     {
       global $wpdb;
 
       $table_name = $wpdb->prefix . 'hid_ex_m_crypto_currency_assets';
 
-      $result = $wpdb->get_results("SELECT * FROM $table_name ORDER BY buying_price DESC LIMIT 3");
+      $result = $wpdb->get_results("SELECT * FROM $table_name");
 
       return $result;
     }
@@ -354,7 +413,7 @@ if (!class_exists('LuxDBH')) {
 
       $table_name = $wpdb->prefix . 'hid_ex_m_giftcards';
 
-      $result = $wpdb->get_results("SELECT * FROM $table_name ORDER BY buying_price DESC LIMIT 3");
+      $result = $wpdb->get_results("SELECT * FROM $table_name");
 
       return $result;
     }
@@ -363,26 +422,55 @@ if (!class_exists('LuxDBH')) {
     {
       $assets = [];
 
-      foreach ($this->lux_get_top_e_currency() as $ecurrency) {
-        $assets[] = $ecurrency;
+      foreach ($this->lux_get_top_e_currency() as $curr) {
+        $asset = array(
+          'asset_type' => 0,
+          'asset_id' => $curr->id,
+          'name' => $curr->name,
+          'short_name' => $curr->short_name,
+          'icon' => wp_get_attachment_url($curr->icon),
+          'buying_price' => $curr->buying_price,
+          'selling_price' => $curr->selling_price,
+        );
+        $assets[] = $asset;
       }
 
-      foreach ($this->lux_get_top_crypto_currency() as $crypto) {
-        $assets[] = $crypto;
+      foreach ($this->lux_get_top_crypto_currency() as $curr) {
+        $asset = array(
+          'asset_type' => 1,
+          'asset_id' => $curr->id,
+          'name' => $curr->name,
+          'short_name' => $curr->short_name,
+          'icon' => wp_get_attachment_url($curr->icon),
+          'buying_price' => $curr->buying_price,
+          'selling_price' => $curr->selling_price,
+        );
+        $assets[] = $asset;
       }
 
-      foreach ($this->lux_get_top_giftcards() as $giftcard) {
-        $assets[] = $giftcard;
+      foreach ($this->lux_get_top_giftcards() as $curr) {
+        $asset = array(
+          'asset_type' => 0,
+          'asset_id' => $curr->id,
+          'name' => $curr->name,
+          'short_name' => $curr->short_name,
+          'icon' => wp_get_attachment_url($curr->icon),
+          'buying_price' => $curr->buying_price,
+          'selling_price' => $curr->selling_price,
+        );
+        $assets[] = $asset;
       }
 
-      if (!empty($assets)) {
-        foreach ($assets as $asset) {
-          $asset->image_url = wp_get_attachment_url($asset->icon);
-          unset($asset->associated_local_bank);
-          unset($asset->icon);
-        }
-      }
       return $assets;
+    }
+
+    public function lux_set_top_asset($asset)
+    {
+      global $wpdb;
+
+      $table_name = $wpdb->prefix . 'em_top_assets';
+
+      $wpdb->insert($table_name, $asset);
     }
 
     public function lux_set_news($news)
@@ -494,6 +582,15 @@ if (!class_exists('LuxDBH')) {
         return true;
       }
       return false;
+    }
+
+    public function lux_delete_top_asset($id)
+    {
+      global $wpdb;
+
+      $table_name = $wpdb->prefix . 'em_top_assets';
+
+      $wpdb->query("DELETE FROM $table_name WHERE id='$id'");
     }
 
     public function lux_delete_news($id)
@@ -613,7 +710,7 @@ if (!class_exists('LuxDBH')) {
 
       if (count($all_orders) > 1) usort($all_orders, 'date_compare');
 
-      if (count($all_orders) > 5) $all_orders = array_slice($all_orders, 0, 5);
+      if (count($all_orders) > 5) $all_orders = array_slice($all_orders, -5, 5);
 
       $announcements = hid_ex_m_get_all_announcements();
       $notifications = $this->lux_get_notifications($user_id);
@@ -684,58 +781,6 @@ if (!class_exists('LuxDBH')) {
       );
 
       return $result;
-    }
-
-    public function lux_create_new_buy_order($data)
-    {
-
-      global $wpdb;
-      $table_name = $wpdb->prefix . 'hid_ex_m_buy_orders';
-
-      $wpdb->insert(
-        $table_name,
-        $data
-      );
-
-      try {
-
-        $customer = get_userdata($data["customer_id"]);
-        $email = $customer->user_email;
-        $name = $customer->display_name;
-        $asset_type = hid_ex_m_get_asset_type($data["asset_type"]);
-        $asset_name = hid_ex_m_get_asset_name($data["asset_type"], $data["asset_id"]);
-        $qty = $data["quantity"];
-        $fee = $data["fee"];
-
-        $message_body = "<html><body><img src='https://myluxtrade.com/wp-content/plugins/lux-support%20-%20Copy/assets/imgs/logo-edited.png' alt='logo' style='max-width: 70px;margin-left: 1rem;'><h1 style='color: green;'>Greetings $name!</h1><p style='font-size: 16px;'>You're recieving this eMail Notification because your buy order was placed successfully and is pending review.<br /><br />Below are some of the order details<br /><br />Asset Type : $asset_type<br />Asset : $asset_name<br />Quantity : $qty<br />Fee : $fee<br /><br />Kindly return to Luxtrade and sign into your dashboard to continue trading Crypto and other digital assets.<br /><br />Cheers!!!<br />Luxtrade - Admin</p></body></html>";
-
-        wp_mail(
-          $email,
-          'LuxTrade Alert !!! Buy order created Successfully',
-          $message_body,
-          'From: ' . $email . "\r\n" .
-            'Reply-To: ' . get_option('business_email') . "\r\n" .
-            'Content-type: text/html; charset=iso-8859-1' . "\r\n" .
-            'X-Mailer: PHP/' . phpversion()
-        );
-
-        $name = hid_ex_m_get_customer_data_name($data["customer_id"]);
-
-        $message_body = "<html><body><img src='https://myluxtrade.com/wp-content/plugins/lux-support%20-%20Copy/assets/imgs/logo-edited.png' alt='logo' style='max-width: 70px;margin-left: 1rem;'><h1 style='color: green;'>Greetings!</h1><p style='font-size: 16px;'>You're recieving this eMail Notification because a customer by the name $name just created a new buy order and is pending review.<br /><br />Below are some of the order details<br /><br />Asset Type : $asset_type<br />Asset : $asset_name<br />Quantity : $qty<br />Fee : # $fee<br /><br />Kindly return to Luxtrade and sign into WP Admin to view and update the order.<br /><br />Cheers!!!<br /><br />Luxtrade - Admin</p></body></html>";
-
-        wp_mail(
-          get_option('business_email'),
-          "LuxTrade Alert !!! You have a new Buy Order",
-          $message_body,
-          'From: ' . $email . "\r\n" .
-            'Reply-To: ' . get_option('business_email') . "\r\n" .
-            'Content-type: text/html; charset=iso-8859-1' . "\r\n" .
-            'X-Mailer: PHP/' . phpversion()
-        );
-      } catch (\Throwable $th) {
-
-        write_log($th);
-      }
     }
 
     public function lux_create_admin_funding($data)
@@ -847,6 +892,127 @@ if (!class_exists('LuxDBH')) {
       }
     }
 
+    public function lux_create_new_buy_order($data)
+    {
+
+      global $wpdb;
+      $table_name = $wpdb->prefix . 'hid_ex_m_buy_orders';
+
+      $wpdb->insert(
+        $table_name,
+        $data
+      );
+
+      try {
+
+        $customer = get_userdata($data["customer_id"]);
+        $email = $customer->user_email;
+        $name = $customer->display_name;
+        $asset_type = hid_ex_m_get_asset_type($data["asset_type"]);
+        $asset_name = hid_ex_m_get_asset_name($data["asset_type"], $data["asset_id"]);
+        $qty = $data["quantity"];
+        $fee = $data["fee"];
+
+        $message_body = "<html><body><img src='https://myluxtrade.com/wp-content/plugins/lux-support%20-%20Copy/assets/imgs/logo-edited.png' alt='logo' style='max-width: 70px;margin-left: 1rem;'><h1 style='color: green;'>Greetings $name!</h1><p style='font-size: 16px;'>You're recieving this eMail Notification because your buy order was placed successfully and is pending review.<br /><br />Below are some of the order details<br /><br />Asset Type : $asset_type<br />Asset : $asset_name<br />Quantity : $qty<br />Fee : $fee<br /><br />Kindly return to Luxtrade and sign into your dashboard to continue trading Crypto and other digital assets.<br /><br />Cheers!!!<br />Luxtrade - Admin</p></body></html>";
+
+        wp_mail(
+          $email,
+          'LuxTrade Alert !!! Buy order created Successfully',
+          $message_body,
+          'From: ' . $email . "\r\n" .
+            'Reply-To: ' . get_option('business_email') . "\r\n" .
+            'Content-type: text/html; charset=iso-8859-1' . "\r\n" .
+            'X-Mailer: PHP/' . phpversion()
+        );
+
+        $name = hid_ex_m_get_customer_data_name($data["customer_id"]);
+
+        $message_body = "<html><body><img src='https://myluxtrade.com/wp-content/plugins/lux-support%20-%20Copy/assets/imgs/logo-edited.png' alt='logo' style='max-width: 70px;margin-left: 1rem;'><h1 style='color: green;'>Greetings!</h1><p style='font-size: 16px;'>You're recieving this eMail Notification because a customer by the name $name just created a new buy order and is pending review.<br /><br />Below are some of the order details<br /><br />Asset Type : $asset_type<br />Asset : $asset_name<br />Quantity : $qty<br />Fee : # $fee<br /><br />Kindly return to Luxtrade and sign into WP Admin to view and update the order.<br /><br />Cheers!!!<br /><br />Luxtrade - Admin</p></body></html>";
+
+        wp_mail(
+          get_option('business_email'),
+          "LuxTrade Alert !!! You have a new Buy Order",
+          $message_body,
+          'From: ' . $email . "\r\n" .
+            'Reply-To: ' . get_option('business_email') . "\r\n" .
+            'Content-type: text/html; charset=iso-8859-1' . "\r\n" .
+            'X-Mailer: PHP/' . phpversion()
+        );
+      } catch (\Throwable $th) {
+
+        write_log($th);
+      }
+    }
+
+    public function lux_get_all_sell_orders()
+    {
+      global $wpdb;
+
+      $table_name = $wpdb->prefix . 'hid_ex_m_sell_orders';
+
+      $result = $wpdb->get_results("SELECT * FROM $table_name ORDER BY time_stamp DESC");
+
+      return $result;
+    }
+
+    public function lux_get_all_buy_orders()
+    {
+      global $wpdb;
+
+      $table_name = $wpdb->prefix . 'hid_ex_m_buy_orders';
+
+      $result = $wpdb->get_results("SELECT * FROM $table_name ORDER BY time_stamp DESC");
+
+      return $result;
+    }
+
+    public function lux_update_buy_order($data, $where)
+    {
+      global $wpdb;
+      $table_name = $wpdb->prefix . 'hid_ex_m_buy_orders';
+
+      $wpdb->update($table_name, $data, $where);
+
+      try {
+        $customer = get_userdata($data["customer_id"]);
+        $email = $customer->user_email;
+        $name = $customer->display_name;
+        $asset_type = hid_ex_m_get_asset_type($data["asset_type"]);
+        $asset_name = hid_ex_m_get_asset_name($data["asset_type"], $data["asset_id"]);
+        $qty = $data["quantity"];
+        $fee = $data["fee"];
+
+        $message_body = "<html><body><img src='https://myluxtrade.com/wp-content/plugins/lux-support%20-%20Copy/assets/imgs/logo-edited.png' alt='logo' style='max-width: 70px;margin-left: 1rem;'><h1 style='color: green;'>Greetings $name!</h1><p style='font-size: 16px;'>You're recieving this eMail Notification because a buy order of yours got updated by Luxtrade admin.<br /><br />Below are some of the order details<br /><br />Asset Type : $asset_type<br />Asset : $asset_name<br />Quantity : $qty<br />Fee : # $fee<br /><br />Kindly return to Luxtrade and sign into your dashboard to continue trading Crypto and other digital assets.<br /><br />Cheers!!!<br />Luxtrade - Admin</p></body></html>";
+
+        wp_mail(
+          $email,
+          'LuxTrade Alert !!! Buy Order Updated by Admin',
+          $message_body,
+          'From: ' . $email . "\r\n" .
+            'Reply-To: ' . get_option('business_email') . "\r\n" .
+            'Content-type: text/html; charset=iso-8859-1' . "\r\n" .
+            'X-Mailer: PHP/' . phpversion()
+        );
+
+        $name = hid_ex_m_get_customer_data_name($data["customer_id"]);
+
+        $message_body = "<html><body><img src='https://myluxtrade.com/wp-content/plugins/lux-support%20-%20Copy/assets/imgs/logo-edited.png' alt='logo' style='max-width: 70px;margin-left: 1rem;'><h1 style='color: green;'>Greetings!</h1><p style='font-size: 16px;'>You're recieving this eMail Notification because you just updated a buy order of a customer by the name $name just created a new buy order and is pending review.<br /><br />Below are some of the order details<br /><br />Asset Type : $asset_type<br />Asset : $asset_name<br />Quantity : $qty<br />Fee : # $fee<br /><br />Kindly return to Luxtrade and sign into WP Admin to view and update the order.<br /><br />Cheers!!!<br /><br />Luxtrade - Admin</p></body></html>";
+
+        wp_mail(
+          get_option('business_email'),
+          "LuxTrade Alert !!! You Just Updated a Buy Order",
+          $message_body,
+          'From: ' . $email . "\r\n" .
+            'Reply-To: ' . get_option('business_email') . "\r\n" .
+            'Content-type: text/html; charset=iso-8859-1' . "\r\n" .
+            'X-Mailer: PHP/' . phpversion()
+        );
+      } catch (\Throwable $th) {
+
+        write_log($th);
+      }
+    }
+
     public function lux_create_new_sell_order($data)
     {
 
@@ -901,6 +1067,53 @@ if (!class_exists('LuxDBH')) {
       }
     }
 
+    public function lux_update_sell_order($data, $where)
+    {
+      global $wpdb;
+      $table_name = $wpdb->prefix . 'hid_ex_m_sell_orders';
+
+      $wpdb->update($table_name, $data, $where);
+
+      try {
+        $customer = get_userdata($data["customer_id"]);
+        $email = $customer->user_email;
+        $name = $customer->display_name;
+        $asset_type = hid_ex_m_get_asset_type($data["asset_type"]);
+        $asset_name = hid_ex_m_get_asset_name($data["asset_type"], $data["asset_id"]);
+        $qty = $data["quantity_sold"];
+        $fee = $data["amount_to_recieve"];
+
+        $message_body = "<html><body><img src='https://myluxtrade.com/wp-content/plugins/lux-support%20-%20Copy/assets/imgs/logo-edited.png' alt='logo' style='max-width: 70px;margin-left: 1rem;'><h1 style='color: green;'>Greetings $name!</h1><p style='font-size: 16px;'>You're recieving this eMail Notification because a sell order of yours got updated by Luxtrade admin.<br /><br />Below are some of the order details<br /><br />Asset Type : $asset_type<br />Asset : $asset_name<br />Quantity : $qty<br />Fee : # $fee<br /><br />Kindly return to Luxtrade and sign into your dashboard to continue trading Crypto and other digital assets.<br /><br />Cheers!!!<br />Luxtrade - Admin</p></body></html>";
+
+        wp_mail(
+          $email,
+          'LuxTrade Alert !!! Sell Order Updated by Admin',
+          $message_body,
+          'From: ' . $email . "\r\n" .
+            'Reply-To: ' . get_option('business_email') . "\r\n" .
+            'Content-type: text/html; charset=iso-8859-1' . "\r\n" .
+            'X-Mailer: PHP/' . phpversion()
+        );
+
+        $name = hid_ex_m_get_customer_data_name($data["customer_id"]);
+
+        $message_body = "<html><body><img src='https://myluxtrade.com/wp-content/plugins/lux-support%20-%20Copy/assets/imgs/logo-edited.png' alt='logo' style='max-width: 70px;margin-left: 1rem;'><h1 style='color: green;'>Greetings!</h1><p style='font-size: 16px;'>You're recieving this eMail Notification because you just updated a sell order of a customer by the name $name just created a new buy order and is pending review.<br /><br />Below are some of the order details<br /><br />Asset Type : $asset_type<br />Asset : $asset_name<br />Quantity : $qty<br />Fee : # $fee<br /><br />Kindly return to Luxtrade and sign into WP Admin to view and update the order.<br /><br />Cheers!!!<br /><br />Luxtrade - Admin</p></body></html>";
+
+        wp_mail(
+          get_option('business_email'),
+          "LuxTrade Alert !!! You Just Updated a Sell Order",
+          $message_body,
+          'From: ' . $email . "\r\n" .
+            'Reply-To: ' . get_option('business_email') . "\r\n" .
+            'Content-type: text/html; charset=iso-8859-1' . "\r\n" .
+            'X-Mailer: PHP/' . phpversion()
+        );
+      } catch (\Throwable $th) {
+
+        write_log($th);
+      }
+    }
+
     public function lux_create_new_wallet_transaction($data)
     {
 
@@ -919,7 +1132,7 @@ if (!class_exists('LuxDBH')) {
         $email = $customer->user_email;
         $name = $customer->display_name;
         $mode = hid_ex_m_get_wallet_transaction_mode($data["mode"], $data["transaction_type"]);
-        $amount = intval($data["amount"]) - 5;
+        $amount = intval($data["amount"]) - 50;
 
         $message_body = "<html><body><img src='https://myluxtrade.com/wp-content/plugins/lux-support%20-%20Copy/assets/imgs/logo-edited.png' alt='logo' style='max-width: 70px;margin-left: 1rem;'><h1 style='color: green;'>Greetings $name!</h1><p style='font-size: 16px;'>You're recieving this eMail Notification because your $mode of # $amount was successful and is pending review.<br /><br />Kindly return to Luxtrade and sign into your dashboard; Visit the wallets tab to know more.<br /><br />Cheers!!!<br />Luxtrade - Admin</p></body></html>";
 

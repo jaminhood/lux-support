@@ -21,6 +21,7 @@ if (!class_exists('LuxUtils')) {
       $lux_admin_giftcards = new LuxAdminGiftcards;
       $lux_admin_debit_user = new LuxAdminDebitWallet;
       $lux_admin_credit_user = new LuxAdminCreditWallet;
+      $lux_admin_announcement = new LuxAdminAnnouncement;
       # === adding plugin in menu
       add_menu_page(
         'Lux Management', //page title
@@ -130,6 +131,29 @@ if (!class_exists('LuxUtils')) {
         'lux-top-news', //slug
         [$lux_admin_top_news_page, 'lux_admin_top_news_template'] //function
       );
+
+      add_submenu_page(
+        'lux', //parent page slug
+        'Create Announcement', //page title
+        'Create Announcement', //menu titel
+        'manage_options', //manage optios
+        'lux-announcement', //slug
+        [$lux_admin_announcement, 'lux_admin_announcement_template'] //function
+      );
+    }
+
+    public static function lux_get_order_status($status)
+    {
+
+      if ($status == 0) {
+        return "Declined";
+      } elseif ($status == 1) {
+        return "Pending";
+      } elseif ($status == 2) {
+        return "Confirmed";
+      } else {
+        return "Completed";
+      }
     }
 
     public static function lux_push_notification($id, array $data)

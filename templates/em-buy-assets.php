@@ -40,12 +40,12 @@ if (!class_exists('LuxAdminBuyAssets')) {
           'asset_id'              => $_POST['asset'],
           'quantity'              => (float)$_POST['quantity'],
           'fee'                   => (float)$_POST['hidden-fee'],
-          'sending_instructions'   => $_POST['sending-instruction'],
+          'sending_instructions'  => $_POST['sending-instruction'],
           'proof_of_payment'      => $_POST['icon-media-id'],
           'order_status'          => $_POST['status']
         );
 
-        hid_ex_m_create_new_buy_order($data);
+        $this->lux_dbh->lux_create_new_buy_order($data);
 
         $msg = '';
 
@@ -54,6 +54,8 @@ if (!class_exists('LuxAdminBuyAssets')) {
         } elseif ($_POST['status'] == 1) {
           $msg = 'Buy order received, please await confirmation';
         } elseif ($_POST['status'] == 2) {
+          $msg = 'Buy order confirmed, please await completion';
+        } elseif ($_POST['status'] == 3) {
           $msg = 'Buy order completed, please check your wallet';
         }
 
@@ -79,7 +81,7 @@ if (!class_exists('LuxAdminBuyAssets')) {
           'asset_id'              => $_POST['asset'],
           'quantity'              => (float)$_POST['quantity'],
           'fee'                   => (float)$_POST['hidden-fee'],
-          'sending_instructions'   => $_POST['sending-instruction'],
+          'sending_instructions'  => $_POST['sending-instruction'],
           'proof_of_payment'      => $_POST['icon-media-id'],
           'order_status'          => $_POST['status']
         );
@@ -88,7 +90,7 @@ if (!class_exists('LuxAdminBuyAssets')) {
           'id' => $_POST['id']
         );
 
-        hid_ex_m_update_buy_order_data($data, $where);
+        $this->lux_dbh->lux_update_buy_order($data, $where);
 
         $msg = '';
 
@@ -97,6 +99,8 @@ if (!class_exists('LuxAdminBuyAssets')) {
         } elseif ($_POST['status'] == 1) {
           $msg = 'Buy order received, please await confirmation';
         } elseif ($_POST['status'] == 2) {
+          $msg = 'Buy order confirmed, please await completion';
+        } elseif ($_POST['status'] == 3) {
           $msg = 'Buy order completed, please check your wallet';
         }
 
@@ -139,7 +143,7 @@ if (!class_exists('LuxAdminBuyAssets')) {
     public function lux_all_buy_component()
     {
       $add_url = admin_url("admin.php?page=lux-buy&tab=create-new");
-      $all_orders = hid_ex_m_get_all_buy_orders() ?>
+      $all_orders = $this->lux_dbh->lux_get_all_buy_orders() ?>
       <div class="row">
         <div class="col-12">
           <div class="card text-dark">
@@ -158,13 +162,13 @@ if (!class_exists('LuxAdminBuyAssets')) {
             <div class="card-body">
               <?php if (!empty($all_orders)) {  ?>
                 <div class="table-responsive py-3">
-                  <table class="table table-striped" id="database-table">
+                  <table class="table table-striped">
                     <thead>
                       <tr>
+                        <th>Time</th>
                         <th>Customer Name</th>
                         <th>Asset Type</th>
                         <th>Asset</th>
-                        <th>Time</th>
                         <th>Fee</th>
                         <th>Quantity</th>
                         <th>Order Status</th>
@@ -178,23 +182,17 @@ if (!class_exists('LuxAdminBuyAssets')) {
                         $delete_url = admin_url("admin.php?page=lux-buy&delete=$order->id");
                         $customer_name = hid_ex_m_get_customer_data_name($order->customer_id);
                         $asset_type = hid_ex_m_get_asset_type($order->asset_type);
-                        $order_status = hid_ex_m_get_order_status($order->order_status);
+                        $order_status = LuxUtils::lux_get_order_status($order->order_status);
                         $asset_name = hid_ex_m_get_asset_name($order->asset_type, $order->asset_id);
                         $qty = floatval($order->quantity);
 
-                        echo "<tr><td>$customer_name</td>";
+                        echo "<tr><td>$order->time_stamp</td>";
                         echo "<td>$asset_type</td>";
-
                         echo "<td>$asset_name</td>";
-
-                        echo "<td>$order->time_stamp</td>";
-
+                        echo "<td>$customer_name</td>";
                         echo "<td>$order->fee</td>";
-
                         echo "<td>$qty</td>";
-
                         echo "<td>$order_status</td>";
-
                         echo "<td>
                           <a href=$update_url class='btn l-bg-green btn-action mx-1'>Update</a>
                           <a href=$delete_url class='btn l-bg-green btn-action mx-1'>Delete</a>
@@ -347,8 +345,43 @@ if (!class_exists('LuxAdminBuyAssets')) {
 
     public function lux_update_buy_component()
     {
-
       $order_id = $_GET['id'];
+
+      if (hid_ex_m_get_buy_order_data($order_id)->order_status == 1) {
+        $order_data = hid_ex_m_get_buy_order_data($order_id);
+        $data = array(
+          'customer_id'           => $order_data->customer_id,
+          'asset_type'            => $order_data->asset_type,
+          'asset_id'              => $order_data->asset_id,
+          'quantity'              => $order_data->quantity,
+          'fee'                   => $order_data->fee,
+          'sending_instructions'  => $order_data->sending_instructions,
+          'proof_of_payment'      => $order_data->proof_of_payment,
+          'order_status'          => 2,
+        );
+
+        $where = array(
+          'id' => $order_id
+        );
+
+        hid_ex_m_update_buy_order_data($data, $where);
+
+        $msg = 'Buy order confirmed, please await completion';
+
+        $notify = [
+          'customer_id' => $order_data->customer_id,
+          'title' => 'Order Updated',
+          'msg' => $msg
+        ];
+
+        $this->lux_dbh->lux_set_notification($notify);
+        $data = [
+          'title' => 'Order Updated',
+          'body' => $msg
+        ];
+        LuxUtils::lux_push_notification($order_data->customer_id, $data);
+      }
+
       $order_data = hid_ex_m_get_buy_order_data($order_id);
       $rate = $order_data->fee / $order_data->quantity ?>
       <div class="row">
@@ -488,6 +521,10 @@ if (!class_exists('LuxAdminBuyAssets')) {
                           <option value="2" <?php
                                             if ($order_data->order_status == 2) {
                                               echo "selected";
+                                            } ?>>Confirmed</option>
+                          <option value="3" <?php
+                                            if ($order_data->order_status == 3) {
+                                              echo "selected";
                                             } ?>>Completed</option>
                         </select>
                         <p class="description">Order Status</p>
@@ -496,7 +533,7 @@ if (!class_exists('LuxAdminBuyAssets')) {
                   </tbody>
                 </table>
                 <p class="submit">
-                  <button type="submit" name="update-order" id="new-submit" class="button button-primary">Create New Order &#10003;</button>
+                  <button type="submit" name="update-order" id="new-submit" class="button button-primary">Update Buy Order &#10003;</button>
                   <a href="<?php echo admin_url('admin.php?page=lux-buy'); ?>" class="button">Cancel</a>
                 </p>
               </form>

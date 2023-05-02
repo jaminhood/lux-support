@@ -363,7 +363,7 @@ function em_dashboard_template($page_data, $user_id)
             <h4 class="card-title">Statement</h4>
           </div>
         </div>
-        <div class="card-body p-0">
+        <div class="card-body p-0 px-4">
           <?php
           if (empty($page_data['orders'])) {
             echo "<p class='py-3 px-4'>You haven't made any orders</p>";
@@ -398,6 +398,8 @@ function em_dashboard_template($page_data, $user_id)
                     if ($order->order_status == 0) {
                       $order_status = "<span class='badge badge-danger'>Declined</span>";
                     } elseif ($order->order_status == 2) {
+                      $order_status = "<span class='badge badge-info'>Confirmed</span>";
+                    } elseif ($order->order_status == 3) {
                       $order_status = "<span class='badge badge-success'>Completed</span>";
                     }
                   ?>
@@ -641,7 +643,7 @@ function em_wallet_template($page_data)
                     <p class="font-14 text-muted">Where should we send your asset?</p>
                   </div>
                 </div>
-                <p class="font-14 text-muted"><strong>NOTE:</strong> You would be debitted 5 naira for all withdrawal.</p>
+                <p class="font-14 text-muted"><strong>NOTE:</strong> You would be debitted 50 naira for all withdrawal.</p>
                 <p class="font-14 text-danger withdraw-error-msg"></p>
                 <p class="font-14 text-success withdraw-success-msg"></p>
               </div>
@@ -755,10 +757,7 @@ function em_wallet_template($page_data)
 }
 
 function em_buy_asset_template($page_data)
-{
-  // $lux_dbh = new LuxDBH;
-  // $lux_dbh->lux_set_device_token('dGlVrCiNSMewyuUjNNRsYF:APA91bFXrWKyLWIE5Q89utI5QOSwAL-1qOjDCnacvY7uUm9hjajGwiM-1YtJ9qs4jRglq9_frtvHKnhfRfpd9J779wro60g2Gfn4fplLOAnbRfi54DJ6g6aw83lODaXApvdEKO6UltOs');
-?>
+{ ?>
   <!-- begin row -->
   <div class="row">
     <div class="col-md-12 m-b-30">
@@ -1441,6 +1440,8 @@ function em_statement_template($page_data)
                       if ($order->order_status == 0) {
                         $order_status = "<span class='badge badge-danger'>Declined</span>";
                       } elseif ($order->order_status == 2) {
+                        $order_status = "<span class='badge badge-info'>Confirmed</span>";
+                      } elseif ($order->order_status == 3) {
                         $order_status = "<span class='badge badge-success'>Completed</span>";
                       }
 

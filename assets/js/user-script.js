@@ -916,7 +916,7 @@ jQuery(document).ready(() => {
         formData.append("chosen_asset_type", assetNumber);
         formData.append("chosen_asset_id", assetsSelectMenu.val());
         formData.append("entered_quantity", qtyElement.val());
-        formData.append("action", "hid_ex_m_submit_sell_order");
+        formData.append("action", "lux_submit_sell_order");
         formData.append("security", script_links.security);
 
         (async () =>

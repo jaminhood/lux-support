@@ -78,6 +78,8 @@ if (!class_exists('LuxREST')) {
       add_action('rest_api_init', [$this, 'lux_sell_giftcard_route']);
 
       add_action('rest_api_init', [$this, 'lux_set_device_token_route']);
+
+      add_action('rest_api_init', [$this, 'lux_set_withdrawal_route']);
     }
 
     public function lux_permit_customers()
@@ -368,7 +370,7 @@ if (!class_exists('LuxREST')) {
       $args = [
         'methods'  => 'GET',
         'callback' => [$this, 'lux_get_top_assets'],
-        'permission_callback' => [$this, 'lux_permit_customers']
+        // 'permission_callback' => [$this, 'lux_permit_customers']
       ];
 
       register_rest_route('em', 'top-assets/get', $args);
@@ -377,7 +379,56 @@ if (!class_exists('LuxREST')) {
     public function lux_get_top_assets()
     {
       try {
-        $topAssets = $this->lux_dbh->lux_get_assets();
+        $assets = $this->lux_dbh->lux_get_top_assets();
+        $data = [];
+
+        foreach ($assets as $asset) {
+          switch ($asset->asset_type) {
+            case 0:
+              $curr = hid_ex_m_get_e_currency_data($asset->asset_id);
+              $data[] = array(
+                "id" => $curr->id,
+                "name" => $curr->name,
+                "short_name" => $curr->short_name,
+                "icon" => wp_get_attachment_url($curr->icon),
+                "buying_price" => $curr->buying_price,
+                "selling_price" => $curr->selling_price,
+              );
+              break;
+            case 1:
+              $curr = hid_ex_m_get_crypto_currency_data($asset->asset_id);
+              $data[] = array(
+                "id" => $curr->id,
+                "name" => $curr->name,
+                "short_name" => $curr->short_name,
+                "icon" => wp_get_attachment_url($curr->icon),
+                "buying_price" => $curr->buying_price,
+                "selling_price" => $curr->selling_price,
+              );
+              break;
+            case 2:
+              global $wpdb;
+              $table_name = $wpdb->prefix . 'hid_ex_m_giftcards';
+              $result = $wpdb->get_results("SELECT * FROM $table_name WHERE id='$asset->asset_id'");
+
+              if ($result) {
+                $curr = $result[0];
+
+                $data[] = array(
+                  "id" => $curr->id,
+                  "name" => $curr->name,
+                  "short_name" => $curr->short_name,
+                  "icon" => wp_get_attachment_url($curr->icon),
+                  "buying_price" => $curr->buying_price,
+                  "selling_price" => $curr->selling_price,
+                );
+              }
+
+              break;
+          }
+        }
+
+        $topAssets = $data;
 
         $response = new WP_REST_Response($topAssets);
         $response->set_status(200);
@@ -1522,6 +1573,83 @@ if (!class_exists('LuxREST')) {
           'no request', # code
           'no request was submitted for process', # message
           array('status' => 400) # status
+        );
+      }
+    }
+
+    public function lux_set_withdrawal_route()
+    {
+      $args = [
+        'methods'  => 'POST',
+        'callback' => [$this, 'lux_set_withdrawal'],
+        'permission_callback' => [$this, 'lux_permit_customers']
+      ];
+
+      register_rest_route('em', 'make-withdrawal', $args);
+    }
+
+    public function lux_set_withdrawal($request)
+    {
+      if (isset($request['amount-to-withdraw']) && isset($request['sending-instructions'])) {
+
+        if (hid_ex_m_get_withdrawal_status(get_current_user_id()) == 0) {
+          return new WP_Error(
+            'error occured', // code
+            'withdrawal disabled for this user', // data
+            array('status' => 400) // status
+          );
+        }
+
+        if ($request['amount-to-withdraw'] < 500) {
+          return new WP_Error(
+            'error occured', // code
+            'the amount to withdraw is not up to the minimum which is 500 naira', // data
+            array('status' => 400) // status
+          );
+        }
+
+        try {
+
+          $current_balance = hid_ex_m_get_account_balance(get_current_user_id());
+          $withdrawable_amount = $current_balance - 100;
+
+          if ($request['amount-to-withdraw'] < $withdrawable_amount) {
+
+            $input_data = array(
+              'customer_id' => get_current_user_id(),
+              'transaction_type' => 2,
+              'amount' => intval($request['amount-to-withdraw']) + 50,
+              'mode'  => 0,
+              'details'   => "Withdrawal Request from Mobile App",
+              'proof_of_payment' => 0,
+              'sending_instructions'  => $request['sending-instructions'],
+              'transaction_status'    => 1
+            );
+
+            $this->lux_dbh->lux_create_new_wallet_transaction($input_data);
+
+            $response = new WP_REST_Response("Withdrawal Request Submitted Successfully");
+            $response->set_status(200);
+            return $response;
+          } else {
+            return new WP_Error(
+              'error occured', // code
+              'insufficient balance', // data
+              array('status' => 400) // status
+            );
+          }
+        } catch (\Throwable $th) {
+          return new WP_Error(
+            'unknown error occured', // code
+            'an unknown error occured while trying to process withdrawals', // data
+            array('status' => 400) // status
+          );
+        }
+      } else {
+        return new WP_Error(
+          'incomplete fields', // code
+          'incomplete fields were submitted', // data
+          array('status' => 400) // status
         );
       }
     }

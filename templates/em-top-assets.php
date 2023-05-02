@@ -16,6 +16,25 @@ if (!class_exists('LuxAdminTopAssetsPage')) {
 
     public function lux_admin_top_assets_template()
     {
+      if (isset($_GET['tab'])) {
+        if ($_GET['tab'] === 'add') {
+          $asset = array(
+            'asset_type' => $_GET['asset_type'],
+            'asset_id' => $_GET['asset_id']
+          );
+
+          $this->lux_dbh->lux_set_top_asset($asset);
+          echo "<script>location.replace('admin.php?page=lux-top-assets');</script>";
+          die();
+        }
+
+        if ($_GET['tab'] === 'remove') {
+          $this->lux_dbh->lux_delete_top_asset($_GET['id']);
+          echo "<script>location.replace('admin.php?page=lux-top-assets');</script>";
+          die();
+        }
+      }
+
       $null_msg = '<div class="badge badge-danger text-uppercase badge-shadow">null</div>' ?>
       <main class="exchange-manager-wrapper">
         <section class="exchange-manager-wrapper-header">
@@ -40,28 +59,34 @@ if (!class_exists('LuxAdminTopAssetsPage')) {
                         <table class="table table-striped">
                           <thead>
                             <tr>
-                              <th></th>
                               <th>Name</th>
                               <th>Short Name</th>
                               <th>Icon</th>
                               <th>Buying Price</th>
                               <th>Selling Price</th>
+                              <th>Action</th>
                             </tr>
                           </thead>
                           <tbody>
                             <?php
-                            $i = 0;
-                            foreach ($assets as $asset) {
-                              $i++; ?>
+                            foreach ($assets as $asset) { ?>
                               <tr>
-                                <td><?php echo $i ?></td>
-                                <td><?php echo $asset->name ?? $null_msg ?></td>
-                                <td class="text-uppercase text-bold"><?php echo $asset->short_name ?? $null_msg ?></td>
+                                <td><?php echo $asset['name'] ?? $null_msg ?></td>
+                                <td class="text-uppercase text-bold"><?php echo $asset['short_name'] ?? $null_msg ?></td>
                                 <td>
-                                  <img src="<?php echo $asset->image_url ?? '' ?>" alt="<?php echo $asset->name ?? $null_msg ?>" width="50">
+                                  <img src="<?php echo $asset['icon'] ?? '' ?>" alt="<?php echo $asset['name'] ?? $null_msg ?>" width="50">
                                 </td>
-                                <td><?php echo $asset->buying_price ?? $null_msg ?></td>
-                                <td><?php echo $asset->selling_price ?? $null_msg ?></td>
+                                <td><?php echo $asset['buying_price'] ?? $null_msg ?></td>
+                                <td><?php echo $asset['selling_price'] ?? $null_msg ?></td>
+                                <td>
+                                  <?php
+                                  $check = $this->lux_dbh->lux_get_top_asset($asset['asset_type'], $asset['asset_id']);
+                                  if ($check) { ?>
+                                    <a href="<?php echo admin_url("admin.php?page=lux-top-assets&tab=remove&id=" . $check->id) ?>" class="btn btn-primary l-bg-green btn-sm">Remove</a>
+                                  <?php } else { ?>
+                                    <a href="<?php echo admin_url("admin.php?page=lux-top-assets&tab=add&asset_type=" . $asset['asset_type'] . "&asset_id=" . $asset['asset_id']) ?>" class="btn btn-primary l-bg-green btn-sm">Add</a>
+                                  <?php } ?>
+                                </td>
                               </tr>
                             <?php } ?>
                           </tbody>
