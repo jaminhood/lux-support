@@ -80,6 +80,8 @@ if (!class_exists('LuxREST')) {
       add_action('rest_api_init', [$this, 'lux_set_device_token_route']);
 
       add_action('rest_api_init', [$this, 'lux_set_withdrawal_route']);
+
+      add_action('rest_api_init', [$this, 'lux_get_fetch_statement_route']);
     }
 
     public function lux_permit_customers()
@@ -1282,8 +1284,6 @@ if (!class_exists('LuxREST')) {
       }
     }
 
-    // ===================================================
-
     public function lux_create_support_ticket_route()
     {
       $args = [
@@ -1649,6 +1649,105 @@ if (!class_exists('LuxREST')) {
         return new WP_Error(
           'incomplete fields', // code
           'incomplete fields were submitted', // data
+          array('status' => 400) // status
+        );
+      }
+    }
+
+    public function lux_get_fetch_statement_route()
+    {
+      $args = [
+        'methods'  => 'GET',
+        'callback' => [$this, 'lux_get_fetch_statement'],
+        'permission_callback' => [$this, 'lux_permit_customers']
+      ];
+
+      register_rest_route('em', 'fetch-statement', $args);
+    }
+
+    public function lux_get_fetch_statement($request)
+    {
+      if (isset($request['order'])) {
+        $order = sanitize_text_field($request['order']);
+        $customer_id = get_current_user_id();
+
+        $output_data = [];
+
+        if ($order == 1) {
+          $output_data = $this->lux_dbh->lux_get_buy_orders();
+
+          if (!empty($output_data)) {
+            foreach ($output_data as $single) {
+              $single->quantity = floatval($single->quantity);
+              $single->amount = floatval($single->fee);
+
+              $type = hid_ex_m_get_asset_type($single->asset_type);
+              $single->type = $type;
+
+              $asset = hid_ex_m_get_asset_full_name($single->asset_type, $single->asset_id);
+              $single->asset = $asset;
+
+              $single->snapshot = wp_get_attachment_url($single->proof_of_payment);
+
+              $single->status = LuxUtils::lux_get_order_status($single->order_status);
+
+              unset($single->order_status);
+              unset($single->id);
+              unset($single->customer_id);
+              unset($single->quantity);
+              unset($single->asset_id);
+              unset($single->asset_type);
+              unset($single->proof_of_payment);
+              unset($single->fee);
+            }
+          }
+        } else if ($order == 2) {
+
+          $output_data = $this->lux_dbh->lux_get_sell_orders();
+
+          if (!empty($output_data)) {
+            foreach ($output_data as $single) {
+
+
+              $single->quantity = floatval($single->quantity_sold);
+              $single->amount = floatval($single->amount_to_recieve);
+
+              $type = hid_ex_m_get_asset_type($single->asset_type);
+              $single->type = $type;
+
+              $asset = hid_ex_m_get_asset_full_name($single->asset_type, $single->asset_id);
+              $single->asset = $asset;
+
+              $single->snapshot = wp_get_attachment_url($single->proof_of_payment);
+
+              $single->status = LuxUtils::lux_get_order_status($single->order_status);
+
+              unset($single->order_status);
+              unset($single->id);
+              unset($single->customer_id);
+              unset($single->quantity_sold);
+              unset($single->asset_id);
+              unset($single->asset_type);
+              unset($single->proof_of_payment);
+              unset($single->amount_to_recieve);
+            }
+          }
+        }
+
+        if (empty($output_data)) {
+          $output_data = array(
+            "message"   => "No history found"
+          );
+        }
+
+        $response = new WP_REST_Response($output_data);
+        $response->set_status(200);
+
+        return $response;
+      } else {
+        return new WP_Error(
+          'incomplete fields', // code
+          'incomplete fields were submitted for process', // data
           array('status' => 400) // status
         );
       }

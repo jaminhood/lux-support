@@ -27,8 +27,8 @@ if (!class_exists('LuxAdminAnnouncement')) {
 
         wp_mail(
           get_option('business_email'),
-          'LuxTrade Alert - New Announcement Published',
-          "This is to notify you that a new alert was just published on your platform.\nDo well to check it out"
+          'LuxTrade Alert - ' . $_POST['headline'],
+          $_POST['body']
         );
 
         $data = [

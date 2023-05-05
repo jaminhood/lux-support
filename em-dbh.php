@@ -955,6 +955,19 @@ if (!class_exists('LuxDBH')) {
       return $result;
     }
 
+    public function lux_get_sell_orders()
+    {
+      global $wpdb;
+
+      $table_name = $wpdb->prefix . 'hid_ex_m_sell_orders';
+
+      $id = get_current_user_id();
+
+      $result = $wpdb->get_results("SELECT * FROM $table_name WHERE customer_id='$id' ORDER BY time_stamp DESC");
+
+      return $result;
+    }
+
     public function lux_get_all_buy_orders()
     {
       global $wpdb;
@@ -962,6 +975,19 @@ if (!class_exists('LuxDBH')) {
       $table_name = $wpdb->prefix . 'hid_ex_m_buy_orders';
 
       $result = $wpdb->get_results("SELECT * FROM $table_name ORDER BY time_stamp DESC");
+
+      return $result;
+    }
+
+    public function lux_get_buy_orders()
+    {
+      global $wpdb;
+
+      $table_name = $wpdb->prefix . 'hid_ex_m_buy_orders';
+
+      $id = get_current_user_id();
+
+      $result = $wpdb->get_results("SELECT * FROM $table_name WHERE customer_id='$id' ORDER BY time_stamp DESC");
 
       return $result;
     }
@@ -982,11 +1008,28 @@ if (!class_exists('LuxDBH')) {
         $qty = $data["quantity"];
         $fee = $data["fee"];
 
-        $message_body = "<html><body><img src='https://myluxtrade.com/wp-content/plugins/lux-support%20-%20Copy/assets/imgs/logo-edited.png' alt='logo' style='max-width: 70px;margin-left: 1rem;'><h1 style='color: green;'>Greetings $name!</h1><p style='font-size: 16px;'>You're recieving this eMail Notification because a buy order of yours got updated by Luxtrade admin.<br /><br />Below are some of the order details<br /><br />Asset Type : $asset_type<br />Asset : $asset_name<br />Quantity : $qty<br />Fee : # $fee<br /><br />Kindly return to Luxtrade and sign into your dashboard to continue trading Crypto and other digital assets.<br /><br />Cheers!!!<br />Luxtrade - Admin</p></body></html>";
+        $order_msg = '';
+
+        switch ($data['order_status']) {
+          case 0:
+            $order_msg = 'declined';
+            break;
+          case 1:
+            $order_msg = 'pended';
+            break;
+          case 2:
+            $order_msg = 'confirmed';
+            break;
+          case 3:
+            $order_msg = 'completed';
+            break;
+        }
+
+        $message_body = "<html><body><img src='https://myluxtrade.com/wp-content/plugins/lux-support%20-%20Copy/assets/imgs/logo-edited.png' alt='logo' style='max-width: 70px;margin-left: 1rem;'><h1 style='color: green;'>Greetings $name!</h1><p style='font-size: 16px;'>You're recieving this eMail Notification because a buy order of yours was $order_msg by Luxtrade admin.<br /><br />Below are some of the order details<br /><br />Asset Type : $asset_type<br />Asset : $asset_name<br />Quantity : $qty<br />Fee : # $fee<br /><br />Kindly return to Luxtrade and sign into your dashboard to continue trading Crypto and other digital assets.<br /><br />Cheers!!!<br />Luxtrade - Admin</p></body></html>";
 
         wp_mail(
           $email,
-          'LuxTrade Alert !!! Buy Order Updated by Admin',
+          'LuxTrade Alert !!! Buy Order ' . $order_msg . ' by Admin',
           $message_body,
           'From: ' . $email . "\r\n" .
             'Reply-To: ' . get_option('business_email') . "\r\n" .
@@ -996,11 +1039,11 @@ if (!class_exists('LuxDBH')) {
 
         $name = hid_ex_m_get_customer_data_name($data["customer_id"]);
 
-        $message_body = "<html><body><img src='https://myluxtrade.com/wp-content/plugins/lux-support%20-%20Copy/assets/imgs/logo-edited.png' alt='logo' style='max-width: 70px;margin-left: 1rem;'><h1 style='color: green;'>Greetings!</h1><p style='font-size: 16px;'>You're recieving this eMail Notification because you just updated a buy order of a customer by the name $name just created a new buy order and is pending review.<br /><br />Below are some of the order details<br /><br />Asset Type : $asset_type<br />Asset : $asset_name<br />Quantity : $qty<br />Fee : # $fee<br /><br />Kindly return to Luxtrade and sign into WP Admin to view and update the order.<br /><br />Cheers!!!<br /><br />Luxtrade - Admin</p></body></html>";
+        $message_body = "<html><body><img src='https://myluxtrade.com/wp-content/plugins/lux-support%20-%20Copy/assets/imgs/logo-edited.png' alt='logo' style='max-width: 70px;margin-left: 1rem;'><h1 style='color: green;'>Greetings!</h1><p style='font-size: 16px;'>You're recieving this eMail Notification because you just $order_msg a buy order of a customer by the name $name.<br /><br />Below are some of the order details<br /><br />Asset Type : $asset_type<br />Asset : $asset_name<br />Quantity : $qty<br />Fee : # $fee<br /><br />Kindly return to Luxtrade and sign into WP Admin to view and update the order.<br /><br />Cheers!!!<br /><br />Luxtrade - Admin</p></body></html>";
 
         wp_mail(
           get_option('business_email'),
-          "LuxTrade Alert !!! You Just Updated a Buy Order",
+          "LuxTrade Alert !!! You Just $order_msg a Buy Order",
           $message_body,
           'From: ' . $email . "\r\n" .
             'Reply-To: ' . get_option('business_email') . "\r\n" .
@@ -1083,11 +1126,28 @@ if (!class_exists('LuxDBH')) {
         $qty = $data["quantity_sold"];
         $fee = $data["amount_to_recieve"];
 
-        $message_body = "<html><body><img src='https://myluxtrade.com/wp-content/plugins/lux-support%20-%20Copy/assets/imgs/logo-edited.png' alt='logo' style='max-width: 70px;margin-left: 1rem;'><h1 style='color: green;'>Greetings $name!</h1><p style='font-size: 16px;'>You're recieving this eMail Notification because a sell order of yours got updated by Luxtrade admin.<br /><br />Below are some of the order details<br /><br />Asset Type : $asset_type<br />Asset : $asset_name<br />Quantity : $qty<br />Fee : # $fee<br /><br />Kindly return to Luxtrade and sign into your dashboard to continue trading Crypto and other digital assets.<br /><br />Cheers!!!<br />Luxtrade - Admin</p></body></html>";
+        $order_msg = '';
+
+        switch ($data['order_status']) {
+          case 0:
+            $order_msg = 'declined';
+            break;
+          case 1:
+            $order_msg = 'pended';
+            break;
+          case 2:
+            $order_msg = 'confirmed';
+            break;
+          case 3:
+            $order_msg = 'completed';
+            break;
+        }
+
+        $message_body = "<html><body><img src='https://myluxtrade.com/wp-content/plugins/lux-support%20-%20Copy/assets/imgs/logo-edited.png' alt='logo' style='max-width: 70px;margin-left: 1rem;'><h1 style='color: green;'>Greetings $name!</h1><p style='font-size: 16px;'>You're recieving this eMail Notification because a sell order of yours was $order_msg by Luxtrade admin.<br /><br />Below are some of the order details<br /><br />Asset Type : $asset_type<br />Asset : $asset_name<br />Quantity : $qty<br />Fee : # $fee<br /><br />Kindly return to Luxtrade and sign into your dashboard to continue trading Crypto and other digital assets.<br /><br />Cheers!!!<br />Luxtrade - Admin</p></body></html>";
 
         wp_mail(
           $email,
-          'LuxTrade Alert !!! Sell Order Updated by Admin',
+          'LuxTrade Alert !!! Sell Order ' . $order_msg . ' by Admin',
           $message_body,
           'From: ' . $email . "\r\n" .
             'Reply-To: ' . get_option('business_email') . "\r\n" .
@@ -1097,11 +1157,11 @@ if (!class_exists('LuxDBH')) {
 
         $name = hid_ex_m_get_customer_data_name($data["customer_id"]);
 
-        $message_body = "<html><body><img src='https://myluxtrade.com/wp-content/plugins/lux-support%20-%20Copy/assets/imgs/logo-edited.png' alt='logo' style='max-width: 70px;margin-left: 1rem;'><h1 style='color: green;'>Greetings!</h1><p style='font-size: 16px;'>You're recieving this eMail Notification because you just updated a sell order of a customer by the name $name just created a new buy order and is pending review.<br /><br />Below are some of the order details<br /><br />Asset Type : $asset_type<br />Asset : $asset_name<br />Quantity : $qty<br />Fee : # $fee<br /><br />Kindly return to Luxtrade and sign into WP Admin to view and update the order.<br /><br />Cheers!!!<br /><br />Luxtrade - Admin</p></body></html>";
+        $message_body = "<html><body><img src='https://myluxtrade.com/wp-content/plugins/lux-support%20-%20Copy/assets/imgs/logo-edited.png' alt='logo' style='max-width: 70px;margin-left: 1rem;'><h1 style='color: green;'>Greetings!</h1><p style='font-size: 16px;'>You're recieving this eMail Notification because you just $order_msg a sell order of a customer by the name $name just created a new buy order and is pending review.<br /><br />Below are some of the order details<br /><br />Asset Type : $asset_type<br />Asset : $asset_name<br />Quantity : $qty<br />Fee : # $fee<br /><br />Kindly return to Luxtrade and sign into WP Admin to view and update the order.<br /><br />Cheers!!!<br /><br />Luxtrade - Admin</p></body></html>";
 
         wp_mail(
           get_option('business_email'),
-          "LuxTrade Alert !!! You Just Updated a Sell Order",
+          "LuxTrade Alert !!! You Just $order_msg a Sell Order",
           $message_body,
           'From: ' . $email . "\r\n" .
             'Reply-To: ' . get_option('business_email') . "\r\n" .
@@ -1220,16 +1280,6 @@ if (!class_exists('LuxDBH')) {
 
         wp_mail(
           get_option('business_email'),
-          "LuxTrade Alert !!! Customer Registeration Successful",
-          $message_body,
-          'From: ' . $email . "\r\n" .
-            'Reply-To: ' . get_option('business_email') . "\r\n" .
-            'Content-type: text/html; charset=iso-8859-1' . "\r\n" .
-            'X-Mailer: PHP/' . phpversion()
-        );
-
-        wp_mail(
-          'princeobj5@gmail.com',
           "LuxTrade Alert !!! Customer Registeration Successful",
           $message_body,
           'From: ' . $email . "\r\n" .
@@ -1605,7 +1655,7 @@ if (!class_exists('LuxDBH')) {
 
         wp_mail(
           get_option('business_email'),
-          'LuxTrade Alert !!! You have a new Buy Order',
+          'LuxTrade Alert !!! You have a new Giftcard Order',
           $message_body
         );
       } catch (\Throwable $th) {
