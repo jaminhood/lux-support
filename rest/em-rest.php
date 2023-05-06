@@ -372,7 +372,7 @@ if (!class_exists('LuxREST')) {
       $args = [
         'methods'  => 'GET',
         'callback' => [$this, 'lux_get_top_assets'],
-        // 'permission_callback' => [$this, 'lux_permit_customers']
+        'permission_callback' => [$this, 'lux_permit_customers']
       ];
 
       register_rest_route('em', 'top-assets/get', $args);

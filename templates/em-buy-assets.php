@@ -346,42 +346,6 @@ if (!class_exists('LuxAdminBuyAssets')) {
     public function lux_update_buy_component()
     {
       $order_id = $_GET['id'];
-
-      if (hid_ex_m_get_buy_order_data($order_id)->order_status == 1) {
-        $order_data = hid_ex_m_get_buy_order_data($order_id);
-        $data = array(
-          'customer_id'           => $order_data->customer_id,
-          'asset_type'            => $order_data->asset_type,
-          'asset_id'              => $order_data->asset_id,
-          'quantity'              => $order_data->quantity,
-          'fee'                   => $order_data->fee,
-          'sending_instructions'  => $order_data->sending_instructions,
-          'proof_of_payment'      => $order_data->proof_of_payment,
-          'order_status'          => 2,
-        );
-
-        $where = array(
-          'id' => $order_id
-        );
-
-        hid_ex_m_update_buy_order_data($data, $where);
-
-        $msg = 'Buy order confirmed, please await completion';
-
-        $notify = [
-          'customer_id' => $order_data->customer_id,
-          'title' => 'Order Updated',
-          'msg' => $msg
-        ];
-
-        $this->lux_dbh->lux_set_notification($notify);
-        $data = [
-          'title' => 'Order Updated',
-          'body' => $msg
-        ];
-        LuxUtils::lux_push_notification($order_data->customer_id, $data);
-      }
-
       $order_data = hid_ex_m_get_buy_order_data($order_id);
       $rate = $order_data->fee / $order_data->quantity ?>
       <div class="row">
