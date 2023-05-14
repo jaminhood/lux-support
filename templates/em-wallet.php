@@ -429,7 +429,7 @@ if (!class_exists('LuxAdminWallet')) {
         </div>
       </div>
       <div class="row">
-        <div class="col-lg-6 col-xxl-4 m-b-30">
+        <div class="col-lg-12 col-xxl-12 m-b-30">
           <div class="row">
             <div class="col-12 m-b-30">
               <div class="card text-dark h-100 mb-0">
@@ -466,99 +466,6 @@ if (!class_exists('LuxAdminWallet')) {
                       <?php } ?>
                     </div>
                   </div>
-                </div>
-              </div>
-            </div>
-            <div class="col-12">
-              <div class="card text-dark m-b-30">
-                <div class="card-header d-flex justify-content-between">
-                  <div class="card-heading">
-                    <h4 class="card-title">General Wallet Info</h4>
-                  </div>
-                </div>
-                <div class="card-body">
-                  <ul class="activity">
-                    <li class="activity-item primary">
-                      <div class="activity-info d-flex justify-content-between">
-                        <h5 class="mb-3">Total amount in all Wallets</h5>
-                        <span>#<?php echo $page_data['total_in_wallet'] ?></span>
-                      </div>
-                    </li>
-                    <li class="activity-item info">
-                      <div class="activity-info d-flex justify-content-between">
-                        <h5 class="mb-3">Total Approved Deposit { last 30 days }</h5>
-                        <span>#<?php echo $page_data['credit_30_days'] ?></span>
-                      </div>
-                    </li>
-                    <li class="activity-item success">
-                      <div class="activity-info d-flex justify-content-between">
-                        <h5 class="mb-3"> Total Approved Withdrawal { last 30 days } </h5>
-                        <span>#<?php echo $page_data['debit_30_days'] ?></span>
-                      </div>
-                    </li>
-                    <li class="activity-item danger">
-                      <div class="activity-info d-flex justify-content-between">
-                        <h5 class="mb-3">All time Total Approved Withdrawal</h5>
-                        <span>#<?php echo $page_data['total_approved_credit'] ?></span>
-                      </div>
-                    </li>
-                    <li class="activity-item warning">
-                      <div class="activity-info d-flex justify-content-between">
-                        <h5>All time Total Approved Deposits</h5>
-                        <span>#<?php echo $page_data['total_approved_debit'] ?></span>
-                      </div>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-lg-6 col-xxl-4 m-b-30">
-          <div class="row">
-            <div class="col-12">
-              <div class="card text-dark m-b-30">
-                <div class="card-header d-flex justify-content-between">
-                  <div class="card-heading">
-                    <h4 class="card-title">Top 10 Customers</h4>
-                  </div>
-                  <div class="dropdown">
-                    <a class="btn btn-round btn-inverse-primary btn-xs" href="<?php echo admin_url("admin.php?page=lux-wallet&tab=customers"); ?>">View all
-                    </a>
-                  </div>
-                </div>
-                <div class="card-body">
-                  <?php
-                  $top_10_customers = $page_data['top_10_customers'];
-                  if (empty($top_10_customers)) { ?>
-                    <span class="customers-info-title">No Customers Found</span>
-                  <?php } else { ?>
-                    <?php
-                    foreach ($top_10_customers as $customer) {
-                      $first_name = $customer->data->display_name;
-                      $last_name = ucfirst($customer->data->user_nicename);
-                      $account_balance = $customer->data->account_balance; ?>
-                      <div class="row active-task m-b-20">
-                        <div class="col-xs-1">
-                          <div class="bg-type l-bg-green mb-1 mb-xs-0 mt-1">
-                            <span>
-                              <i class="fas fa-user"></i>
-                            </span>
-                          </div>
-                        </div>
-                        <div class="col-11">
-                          <h5 class="mb-0">
-                            <?php echo "$first_name $last_name" ?>
-                          </h5>
-                          <ul class="list-unstyled list-inline">
-                            <li class="list-inline-item">
-                              <small><?php echo "#$account_balance" ?></small>
-                            </li>
-                          </ul>
-                        </div>
-                      </div>
-                    <?php } ?>
-                  <?php } ?>
                 </div>
               </div>
             </div>
