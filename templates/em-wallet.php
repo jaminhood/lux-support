@@ -472,6 +472,45 @@ if (!class_exists('LuxAdminWallet')) {
           </div>
         </div>
       </div>
+      <div class="row">
+        <div class="col-lg-12 col-xxl-12 m-b-30">
+          <div class="row">
+            <div class="col-12 m-b-30">
+              <div class="card text-dark h-100 mb-0">
+                <div class="card-header">
+                  <h4>Top 10 Customers</h4>
+                </div>
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col-12">
+                      <ul class="activity">
+                        <?php
+                        $top_10_customers = $page_data['top_10_customers'];
+                        if (empty($top_10_customers)) { ?>
+                          <span class="customers-info-title">No Customers Found</span>
+                          <hr>
+                          <?php } else {
+                          foreach ($top_10_customers as $customer) {
+                            $first_name = $customer->data->display_name;
+                            $last_name = ucfirst($customer->data->user_nicename);
+                            $account_balance = $customer->data->account_balance; ?>
+                            <li class="activity-item success">
+                              <div class="activity-info d-flex justify-content-between align-items-center">
+                                <h5><?php echo $first_name . ' ' . $last_name ?></h5>
+                                <span><?php echo '#' . $account_balance ?></span>
+                              </div>
+                            </li>
+                        <?php }
+                        } ?>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 <?php
     }
   }
