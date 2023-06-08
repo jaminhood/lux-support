@@ -1,149 +1,212 @@
 .exchange-manager-wrapper {
-  margin: 10px 20px 0 2px;
+	margin: 10px 20px 0 2px;
 }
 .exchange-manager-wrapper .flex-start {
-  display: flex;
-  gap: 1rem;
+	display: flex;
+	gap: 1rem;
 }
 .exchange-manager-wrapper .admin-logo {
-  max-width: 50px;
-  width: 100%;
+	max-width: 50px;
+	width: 100%;
 }
 .exchange-manager-wrapper .text-sm {
-  font-size: 0.8rem;
+	font-size: 0.8rem;
 }
 .exchange-manager-wrapper .text-bold {
-  font-weight: 900;
+	font-weight: 900;
 }
 .exchange-manager-wrapper .btn {
-  display: inline-block;
-  outline: none;
-  transition: 0.4s ease-in;
-  border-radius: 0;
+	display: inline-block;
+	outline: none;
+	transition: 0.4s ease-in;
 }
-.exchange-manager-wrapper .btn, .exchange-manager-wrapper .btn:hover, .exchange-manager-wrapper .btn:focus {
-  border: none !important;
-  box-shadow: none !important;
+.exchange-manager-wrapper .btn,
+.exchange-manager-wrapper .btn:hover,
+.exchange-manager-wrapper .btn:focus {
+	border: none !important;
+	box-shadow: none !important;
 }
-.exchange-manager-wrapper .l-bg-green, .exchange-manager-wrapper .page-item.active .page-link {
-  color: #ffffff;
-  background: linear-gradient(135deg, #025e30, #025e30) !important;
-}
-.exchange-manager-wrapper .l-bg-green:hover, .exchange-manager-wrapper .page-item.active .page-link:hover {
-  color: #aaa;
-  background: linear-gradient(135deg, #025e30, #025e30) !important;
+.exchange-manager-wrapper .l-bg-green,
+.exchange-manager-wrapper .page-item.active .page-link {
+	color: #ffffff;
+	background: linear-gradient(135deg, #23bdb8, #43e794) !important;
 }
 .exchange-manager-wrapper .l-bg-purple {
-  color: #ffffff;
-  background: linear-gradient(135deg, #9a56ff, #e36cd9) !important;
+	color: #ffffff;
+	background: linear-gradient(135deg, #9a56ff, #e36cd9) !important;
 }
 .exchange-manager-wrapper .l-bg-cyan {
-  color: #ffffff;
-  background: linear-gradient(135deg, #289cf5, #84c0ec) !important;
+	color: #ffffff;
+	background: linear-gradient(135deg, #289cf5, #84c0ec) !important;
 }
 .exchange-manager-wrapper .l-bg-orange {
-  color: #ffffff;
-  background: linear-gradient(135deg, #f48665, #fda23f) !important;
+	color: #ffffff;
+	background: linear-gradient(135deg, #f48665, #fda23f) !important;
 }
 .exchange-manager-wrapper .card {
-  position: relative;
-  /* color: #ffffff;
-  background: #ffffff; */
-  /* border: none; */
-  max-width: 100%;
-  /* margin-bottom: 30px; */
-  z-index: 0;
-  overflow: hidden;
-  /* box-shadow: 0 0.46875rem 2.1875rem rgba(90, 97, 105, 0.1), 0 0.9375rem 1.40625rem rgba(90, 97, 105, 0.1), 0 0.25rem 0.53125rem rgba(90, 97, 105, 0.12), 0 0.125rem 0.1875rem rgba(90, 97, 105, 0.1); */
+	position: relative;
+	color: #ffffff;
+	background: #ffffff;
+	border: none;
+	max-width: 100%;
+	margin-bottom: 30px;
+	z-index: 0;
+	overflow: hidden;
+	padding: 15px;
+	box-shadow: 0 0.46875rem 2.1875rem rgba(90, 97, 105, 0.1),
+		0 0.9375rem 1.40625rem rgba(90, 97, 105, 0.1),
+		0 0.25rem 0.53125rem rgba(90, 97, 105, 0.12),
+		0 0.125rem 0.1875rem rgba(90, 97, 105, 0.1);
 }
 .exchange-manager-wrapper .card .card-icon {
-  position: absolute;
-  text-align: center;
-  line-height: 50px;
-  color: #000;
-  right: -5px;
-  top: 20px;
-  opacity: 0.1;
-  z-index: -1;
-  font-size: 110px;
-  width: 110px;
-  height: 50px;
-  text-shadow: 3px 7px rgba(0, 0, 0, 0.3);
+	position: absolute;
+	text-align: center;
+	line-height: 50px;
+	color: #000;
+	right: -5px;
+	top: 20px;
+	opacity: 0.1;
+	z-index: -1;
+	font-size: 110px;
+	width: 110px;
+	height: 50px;
+	text-shadow: 3px 7px rgba(0, 0, 0, 0.3);
 }
 .exchange-manager-wrapper .card .card-header {
-  /* display: flex;
-  justify-content: space-between;
-  align-items: center; */
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
 }
-.exchange-manager-wrapper .card .card-header, .exchange-manager-wrapper .card .card-body, .exchange-manager-wrapper .card .card-footer {
-  /* background-color: transparent; */
-  /* padding: 20px 25px; */
+.exchange-manager-wrapper .card .card-header,
+.exchange-manager-wrapper .card .card-body,
+.exchange-manager-wrapper .card .card-footer {
+	background-color: transparent;
+	padding: 20px 25px;
 }
 .exchange-manager-wrapper .card .card-circle {
-  display: inline-flex;
-  text-align: center;
-  border-radius: 50%;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-  -webkit-box-pack: center;
-  -ms-flex-pack: center;
-  justify-content: center;
-  height: 45px;
-  width: 45px;
-  box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.14), 0 7px 10px -5px rgba(76, 175, 80, 0.4);
+	display: inline-flex;
+	text-align: center;
+	border-radius: 50%;
+	-webkit-box-align: center;
+	-ms-flex-align: center;
+	align-items: center;
+	-webkit-box-pack: center;
+	-ms-flex-pack: center;
+	justify-content: center;
+	height: 45px;
+	width: 45px;
+	box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.14),
+		0 7px 10px -5px rgba(76, 175, 80, 0.4);
 }
 .exchange-manager-wrapper .card p {
-  font-weight: 500;
-  font-size: 0.8rem;
+	font-weight: 500;
+	font-size: 0.8rem;
 }
 .exchange-manager-wrapper .progress {
-  -webkit-box-shadow: 0 0.4rem 0.6rem rgba(0, 0, 0, 0.15);
-  box-shadow: 0 0.4rem 0.6rem rgba(0, 0, 0, 0.15);
-  height: 8px;
+	-webkit-box-shadow: 0 0.4rem 0.6rem rgba(0, 0, 0, 0.15);
+	box-shadow: 0 0.4rem 0.6rem rgba(0, 0, 0, 0.15);
+	height: 8px;
 }
 .exchange-manager-wrapper .progress.table-progress {
-  -webkit-box-shadow: 0 0.4rem 0.6rem rgba(0, 0, 0, 0.15);
-  box-shadow: 0 0.4rem 0.6rem rgba(0, 0, 0, 0.15);
-  height: 4px;
+	-webkit-box-shadow: 0 0.4rem 0.6rem rgba(0, 0, 0, 0.15);
+	box-shadow: 0 0.4rem 0.6rem rgba(0, 0, 0, 0.15);
+	height: 4px;
 }
 .exchange-manager-wrapper table.dataTable {
-  border-collapse: collapse !important;
+	border-collapse: collapse !important;
 }
 .exchange-manager-wrapper .table-striped tbody tr:nth-of-type(2n + 1) {
-  background-color: rgba(0, 0, 0, 0.02);
+	background-color: rgba(0, 0, 0, 0.02);
 }
 .exchange-manager-wrapper .table td,
 .exchange-manager-wrapper .table th {
-  border-top: none;
+	border-top: none;
 }
-.exchange-manager-wrapper .table:not(.table-sm):not(.table-md):not(.dataTable) td,
-.exchange-manager-wrapper .table:not(.table-sm):not(.table-md):not(.dataTable) th {
-  padding: 0 10px;
-  height: 60px;
-  vertical-align: middle;
+.exchange-manager-wrapper
+	.table:not(.table-sm):not(.table-md):not(.dataTable)
+	td,
+.exchange-manager-wrapper
+	.table:not(.table-sm):not(.table-md):not(.dataTable)
+	th {
+	padding: 0 10px;
+	height: 60px;
+	vertical-align: middle;
 }
 .exchange-manager-wrapper .custom-control {
-  line-height: 1.6rem;
+	line-height: 1.6rem;
 }
 .exchange-manager-wrapper .page-item .page-link {
-  color: #23bdb8;
-  border: none;
+	color: #23bdb8;
+	border: none;
 }
 .exchange-manager-wrapper .page-item .page-link:focus {
-  box-shadow: none;
+	box-shadow: none;
 }
 .exchange-manager-wrapper .form-control:focus {
-  box-shadow: none !important;
+	box-shadow: none !important;
 }
 .exchange-manager-wrapper .wp-core-ui select {
-  border-color: #23bdb8;
+	border-color: #23bdb8;
 }
 .exchange-manager-wrapper .wp-core-ui select:focus {
-  box-shadow: none;
+	box-shadow: none;
 }
 .exchange-manager-wrapper .wp-core-ui select:hover {
-  color: #23bdb8;
+	color: #23bdb8;
+}
+
+.select-contant {
+	position: relative;
+}
+.select-display {
+	width: 100%;
+	padding: 0.5rem 1rem;
+	max-width: 25rem;
+	border: 0.1rem solid rgba(0, 0, 0, 0.5);
+	border-radius: 0.5rem;
+	cursor: pointer;
+}
+.select-render {
+	font-size: 1.2rem !important;
+}
+.select-dropdown {
+	position: absolute;
+	top: 110%;
+	padding: 0;
+	border: 0.1rem solid rgba(0, 0, 0, 0.5);
+	border-radius: 0.5rem;
+	z-index: 999;
+	width: 100%;
+	max-width: 25rem;
+	background: #fff;
+	overflow: hidden;
+	transition: 0.5s ease-in-out;
+	height: 0;
+	opacity: 0;
+	visibility: hidden;
+}
+.select-dropdown.active {
+	padding: 1rem;
+	height: auto;
+	opacity: 1;
+	visibility: visible;
+}
+.select-search input {
+	width: 100%;
+	padding: 0.5rem 1rem;
+}
+.select-list {
+	max-height: 5rem;
+	overflow-y: auto;
+	padding: 0;
+}
+.select-list li {
+	padding: 0.5rem 1rem;
+	cursor: pointer;
+}
+.select-list li:hover {
+	background: #aaaaaa;
+	color: #000;
 }
 
 /*# sourceMappingURL=main.css.map */

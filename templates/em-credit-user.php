@@ -17,25 +17,28 @@ if (!class_exists('LuxAdminCreditWallet')) {
     public function lux_admin_credit_wallet_template()
     {
       if (isset($_POST['credit-user'])) {
-        $data = array(
-          'customer_id'           => $_POST['customer'],
-          'price'                 => $_POST['price'],
-        );
+        $id    = $_POST['customer'];
+        $price = $_POST['price'];
+
+        $data = [
+          'customer_id' => $id,
+          'price'       => $price,
+        ];
 
         $this->lux_dbh->lux_create_admin_funding($data);
 
         $notify = [
           'customer_id' => $_POST["customer"],
-          'title' => 'Admin Charge',
-          'msg' => 'You have been credited ' . $_POST['price'] . ' by the admin!'
+          'title'       => 'Admin Charge',
+          'msg'         => 'You have been credited ' . $price . ' by the admin!'
         ];
 
         $this->lux_dbh->lux_set_notification($notify);
         $data = [
           'title' => 'Admin Charge',
-          'body' => 'You have been credited ' . $_POST['price'] . ' by the admin!'
+          'body' => 'You have been credited ' . $price . ' by the admin!'
         ];
-        LuxUtils::lux_push_notification($_POST['customer'], $data);
+        LuxUtils::lux_push_notification($id, $data);
         echo "<script>location.replace('admin.php?page=lux-credit-wallet');</script>";
       } ?>
       <main class="exchange-manager-wrapper">
@@ -56,14 +59,23 @@ if (!class_exists('LuxAdminCreditWallet')) {
                     <label for="customer_name" class="col-sm-4 col-form-label">Customer Name</label>
                     <div class="col-sm-8">
                       <div class="selects-contant">
-                        <select class="js-basic-single form-control" name="customer" id="customer_name">
-                          <?php
-                          foreach ($all_customers as $customer) {
-                            $first_name = $customer->data->display_name;
-                            $last_name = ucfirst($customer->data->user_nicename); ?>
-                            <option value="<?php echo $customer->ID ?>"><?php echo "$first_name $last_name" ?></option>
-                          <?php } ?>
-                        </select>
+                        <div class="select-display">
+                          <p class="select-render">Select Customer</p>
+                        </div>
+                        <div class="select-dropdown">
+                          <div class="select-search">
+                            <input type="search" id="select-search" placeholder="Search Customer..">
+                            <input type="hidden" name="customer" id="customer_name">
+                          </div>
+                          <ul class="select-list">
+                            <?php
+                            foreach ($all_customers as $customer) {
+                              $first_name = $customer->data->display_name;
+                              $last_name = ucfirst($customer->data->user_nicename); ?>
+                              <li data-value="<?php echo $customer->ID ?>"><?php echo "$first_name $last_name" ?></li>
+                            <?php } ?>
+                          </ul>
+                        </div>
                       </div>
                     </div>
                   </div>

@@ -56,14 +56,23 @@ if (!class_exists('LuxAdminDebitWallet')) {
                     <label for="customer_name" class="col-sm-4 col-form-label">Customer Name</label>
                     <div class="col-sm-8">
                       <div class="selects-contant">
-                        <select class="js-basic-single form-control" name="customer" id="customer_name">
-                          <?php
-                          foreach ($all_customers as $customer) {
-                            $first_name = $customer->data->display_name;
-                            $last_name = ucfirst($customer->data->user_nicename); ?>
-                            <option value="<?php echo $customer->ID ?>"><?php echo "$first_name $last_name" ?></option>
-                          <?php } ?>
-                        </select>
+                        <div class="select-display">
+                          <p class="select-render">Select Customer</p>
+                        </div>
+                        <div class="select-dropdown">
+                          <div class="select-search">
+                            <input type="search" id="select-search" placeholder="Search Customer..">
+                            <input type="hidden" name="customer" id="customer_name">
+                          </div>
+                          <ul class="select-list">
+                            <?php
+                            foreach ($all_customers as $customer) {
+                              $first_name = $customer->data->display_name;
+                              $last_name = ucfirst($customer->data->user_nicename); ?>
+                              <li data-value="<?php echo $customer->ID ?>"><?php echo "$first_name $last_name" ?></li>
+                            <?php } ?>
+                          </ul>
+                        </div>
                       </div>
                     </div>
                   </div>
